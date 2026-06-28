@@ -1,0 +1,56 @@
+{
+    "name": "zarbinco/zarbin-seo",
+    "description": "Lightweight model-aware SEO toolkit for Laravel.",
+    "keywords": [
+        "laravel",
+        "seo",
+        "meta",
+        "sitemap",
+        "schema",
+        "opengraph",
+        "twitter-card"
+    ],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.93"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.29",
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+        "pestphp/pest": "^2.36|^3.8|^4.0",
+        "pestphp/pest-plugin-laravel": "^2.4|^3.2|^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zarbin\\Seo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Zarbin\\Seo\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "format": "vendor/bin/pint",
+        "format:test": "vendor/bin/pint --test"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zarbin\\Seo\\ZarbinSeoServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

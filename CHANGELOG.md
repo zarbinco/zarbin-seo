@@ -1,0 +1,8 @@
+# Changelog
+
+All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
+
+## 0.1.0 - Unreleased
+
+- Initial package skeleton.
+- Added service provider, facade, configuration, tests, documentation, and CI foundation.

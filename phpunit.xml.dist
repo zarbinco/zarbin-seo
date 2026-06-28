@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    cacheDirectory=".phpunit.cache"
+>
+    <testsuites>
+        <testsuite name="Zarbin SEO Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:3AEYQM3NTSoynZZyeY35xhqmFT0r+O2NhK2bTtG/r5Y="/>
+    </php>
+</phpunit>
