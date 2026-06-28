@@ -6,9 +6,9 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton and foundation only.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, and lightweight SEO data layer.
 
-The first phase intentionally does not include renderers, sitemap generation, UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations.
+The first phase intentionally does not include full HTML renderers, sitemap generation, UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations.
 
 ## Installation
 
@@ -40,12 +40,65 @@ $seo->name();
 $seo->version();
 ```
 
+## Phase 1 Usage
+
+Use the fluent manager to compose SEO data for the current request:
+
+```php
+$data = seo()
+    ->reset()
+    ->title('Product title')
+    ->description('Concise search result description')
+    ->canonical(route('products.show', $product))
+    ->robots('index, follow')
+    ->get();
+
+$data->toArray();
+```
+
+Create a data object directly when you already have normalized values:
+
+```php
+use Zarbin\Seo\Data\SeoData;
+
+$data = SeoData::make([
+    'title' => 'About Zarbin',
+    'description' => 'A short description for search results.',
+    'robots' => ['index', 'follow'],
+]);
+
+$data->robotsContent(); // index, follow
+```
+
+Models can opt into SEO data with the contract and trait:
+
+```php
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Contracts\Seoable;
+
+final class Product implements Seoable
+{
+    use HasSeo;
+
+    public function seoTitle(?string $locale = null): ?string
+    {
+        return $this->name;
+    }
+
+    public function seoDescription(?string $locale = null): ?string
+    {
+        return $this->summary;
+    }
+}
+```
+
+HTML rendering, sitemap generation, UI, and database overrides are planned for upcoming phases.
+
 ## Planned Direction
 
 Future versions are expected to build around Laravel-friendly primitives:
 
 ```php
-// Planned API direction only. Not implemented yet.
 $post->seoTitle();
 $post->seoDescription();
 

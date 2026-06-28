@@ -24,6 +24,9 @@
         "pestphp/pest-plugin-laravel": "^2.4|^3.2|^4.0"
     },
     "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-4": {
             "Zarbin\\Seo\\": "src/"
         }

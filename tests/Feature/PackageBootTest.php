@@ -34,4 +34,9 @@ final class PackageBootTest extends TestCase
     {
         $this->assertNotSame('', $this->app->make('zarbin-seo')->version());
     }
+
+    public function test_seo_helper_returns_package_service(): void
+    {
+        $this->assertSame($this->app->make('zarbin-seo'), seo());
+    }
 }

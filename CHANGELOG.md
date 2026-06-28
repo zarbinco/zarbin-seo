@@ -6,3 +6,4 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 - Initial package skeleton.
 - Added service provider, facade, configuration, tests, documentation, and CI foundation.
+- Added the core SEO data object, fluent manager, SEO contract, model trait, text helpers, and global `seo()` helper.
