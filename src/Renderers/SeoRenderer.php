@@ -12,6 +12,7 @@ final class SeoRenderer
     public function __construct(
         private readonly TitleRenderer $titles = new TitleRenderer,
         private readonly MetaRenderer $meta = new MetaRenderer,
+        private readonly AlternateLanguageRenderer $alternateLanguages = new AlternateLanguageRenderer,
         private readonly OpenGraphRenderer $openGraph = new OpenGraphRenderer,
         private readonly TwitterCardRenderer $twitter = new TwitterCardRenderer,
         private readonly JsonLdRenderer $jsonLd = new JsonLdRenderer,
@@ -32,6 +33,11 @@ final class SeoRenderer
         return $this->openGraph->render($data);
     }
 
+    public function alternateLanguages(SeoData $data): string
+    {
+        return $this->alternateLanguages->render($data);
+    }
+
     public function twitter(SeoData $data): string
     {
         return $this->twitter->render($data);
@@ -47,6 +53,7 @@ final class SeoRenderer
         return Html::lines([
             $this->title($data),
             $this->meta($data),
+            $this->alternateLanguages($data),
             $this->openGraph($data),
             $this->twitter($data),
             $this->jsonLd($data),

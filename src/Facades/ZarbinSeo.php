@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zarbin\Seo\ZarbinSeo siteName(?string $siteName)
  * @method static \Zarbin\Seo\ZarbinSeo separator(?string $separator)
  * @method static \Zarbin\Seo\ZarbinSeo extra(array $extra)
+ * @method static \Zarbin\Seo\ZarbinSeo alternateLanguages(array $links)
+ * @method static \Zarbin\Seo\ZarbinSeo addAlternateLanguage(string $locale, string $url)
  * @method static \Zarbin\Seo\ZarbinSeo for(mixed $source, ?string $locale = null)
  * @method static \Zarbin\Seo\ZarbinSeo route(string $routeName, array $parameters = [], ?string $locale = null)
  * @method static \Zarbin\Seo\Data\SeoData resolve(mixed $source = null, ?string $locale = null)
@@ -34,6 +36,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string openGraph()
  * @method static string twitter()
  * @method static string jsonLd()
+ * @method static string alternates()
  *
  * @see \Zarbin\Seo\ZarbinSeo
  */

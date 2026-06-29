@@ -10,3 +10,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added model, holder, route, array, and default SEO source resolution.
 - Added HTML SEO rendering for title, meta, canonical, robots, Open Graph, Twitter cards, and basic JSON-LD.
 - Added Blade meta component.
+- Added multilingual SEO resolution.
+- Added hreflang alternate link rendering.
+- Added missing translation strategies for hide, fallback, and noindex.
+- Added optional LocalizableSeo contract.

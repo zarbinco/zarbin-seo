@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zarbin\Seo\Concerns;
 
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Support\LocaleHelper;
 
 trait HasSeo
 {
@@ -75,5 +76,23 @@ trait HasSeo
     public function seoExtra(?string $locale = null): array
     {
         return [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function seoLocales(): array
+    {
+        return LocaleHelper::configuredLocales();
+    }
+
+    public function hasSeoLocale(string $locale): bool
+    {
+        return true;
+    }
+
+    public function seoUrlForLocale(string $locale): ?string
+    {
+        return $this->seoCanonicalUrl($locale);
     }
 }

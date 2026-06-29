@@ -9,6 +9,7 @@ final readonly class SeoData
     /**
      * @param  array<int, string>|string|null  $robots
      * @param  array<string, mixed>  $extra
+     * @param  array<string, string>  $alternateLanguages
      */
     public function __construct(
         public ?string $title = null,
@@ -21,14 +22,21 @@ final readonly class SeoData
         public ?string $siteName = null,
         public ?string $separator = null,
         public array $extra = [],
+        array $alternateLanguages = [],
     ) {
         $this->robots = self::normalizeRobots($robots);
+        $this->alternateLanguages = self::normalizeAlternateLanguages($alternateLanguages);
     }
 
     /**
      * @var array<int, string>
      */
     public array $robots;
+
+    /**
+     * @var array<string, string>
+     */
+    public array $alternateLanguages;
 
     /**
      * @param  array<string, mixed>  $data
@@ -47,6 +55,7 @@ final readonly class SeoData
         $extra = isset($source['extra']) && is_array($source['extra'])
             ? $source['extra']
             : [];
+        $alternateLanguages = $source['alternate_languages'] ?? ($source['alternateLanguages'] ?? []);
 
         foreach (array_keys(self::knownKeys()) as $key) {
             unset($data[$key]);
@@ -63,6 +72,7 @@ final readonly class SeoData
             siteName: self::stringOrNull($source['siteName'] ?? null),
             separator: self::stringOrNull($source['separator'] ?? null),
             extra: array_replace($data, $extra),
+            alternateLanguages: is_array($alternateLanguages) ? $alternateLanguages : [],
         );
     }
 
@@ -77,7 +87,9 @@ final readonly class SeoData
      *     locale: ?string,
      *     siteName: ?string,
      *     separator: ?string,
-     *     extra: array<string, mixed>
+     *     extra: array<string, mixed>,
+     *     alternateLanguages: array<string, string>,
+     *     alternate_languages: array<string, string>
      * }
      */
     public function toArray(): array
@@ -93,6 +105,8 @@ final readonly class SeoData
             'siteName' => $this->siteName,
             'separator' => $this->separator,
             'extra' => $this->extra,
+            'alternateLanguages' => $this->alternateLanguages,
+            'alternate_languages' => $this->alternateLanguages,
         ];
     }
 
@@ -110,6 +124,15 @@ final readonly class SeoData
             && is_array($current['extra'])
         ) {
             $incoming['extra'] = array_replace($current['extra'], $incoming['extra']);
+        }
+
+        $incomingAlternateLanguages = $incoming['alternate_languages'] ?? ($incoming['alternateLanguages'] ?? []);
+
+        if (is_array($incomingAlternateLanguages) && $incomingAlternateLanguages !== []) {
+            $incoming['alternate_languages'] = array_replace(
+                $this->alternateLanguages,
+                self::normalizeAlternateLanguages($incomingAlternateLanguages)
+            );
         }
 
         return self::fromArray(array_replace($current, $incoming));
@@ -168,9 +191,29 @@ final readonly class SeoData
         return $this->with(['separator' => $separator]);
     }
 
+    /**
+     * @param  array<string, string>  $alternateLanguages
+     */
+    public function withAlternateLanguages(array $alternateLanguages): self
+    {
+        return $this->with(['alternate_languages' => $alternateLanguages]);
+    }
+
+    public function addAlternateLanguage(string $locale, string $url): self
+    {
+        return $this->withAlternateLanguages([
+            $locale => $url,
+        ]);
+    }
+
     public function robotsContent(): string
     {
         return implode(', ', $this->robots);
+    }
+
+    public function hasAlternateLanguages(): bool
+    {
+        return $this->alternateLanguages !== [];
     }
 
     public function hasTitle(): bool
@@ -209,6 +252,8 @@ final readonly class SeoData
             'siteName' => true,
             'separator' => true,
             'extra' => true,
+            'alternateLanguages' => true,
+            'alternate_languages' => true,
         ];
     }
 
@@ -235,6 +280,28 @@ final readonly class SeoData
 
                 $normalized[] = $value;
             }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param  array<int|string, mixed>  $alternateLanguages
+     * @return array<string, string>
+     */
+    private static function normalizeAlternateLanguages(array $alternateLanguages): array
+    {
+        $normalized = [];
+
+        foreach ($alternateLanguages as $locale => $url) {
+            $locale = trim((string) $locale);
+            $url = trim((string) $url);
+
+            if ($locale === '' || $url === '') {
+                continue;
+            }
+
+            $normalized[$locale] = $url;
         }
 
         return $normalized;

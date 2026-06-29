@@ -226,9 +226,113 @@ public function show(Post $post)
 }
 ```
 
-The renderer currently outputs title, meta description, canonical, robots, Open Graph, Twitter/X Card, and basic JSON-LD tags.
+The renderer currently outputs title, meta description, canonical, robots, hreflang alternate links, Open Graph, Twitter/X Card, and basic JSON-LD tags.
 
-Sitemap generation will be added in a later phase. Multilingual hreflang will be added in a later phase. Database overrides and UI are not part of this phase.
+Sitemap generation will be added in a later phase. Database overrides and UI are not part of this phase.
+
+## Phase 4 Multilingual SEO
+
+Enable lightweight locale-aware resolution and hreflang rendering in the package config:
+
+```php
+'localization' => [
+    'enabled' => true,
+    'locales' => ['fa', 'en'],
+    'default_locale' => 'fa',
+    'route_parameter' => 'locale',
+    'missing_translation_strategy' => 'hide',
+    'generate_hreflang' => true,
+    'x_default' => 'fa',
+],
+```
+
+### Missing Translation Strategy
+
+`hide` skips unavailable locales in alternate links and marks the resolved data with `available_for_locale => false`.
+
+`fallback` can point unavailable locales at the default locale URL and marks the resolved data with `used_locale_fallback => true`.
+
+`noindex` skips unavailable locales in alternate links and changes the current robots value to `noindex, follow`.
+
+### Model-Backed Multilingual Pages And Holders
+
+Models and holder pages can opt into the optional `LocalizableSeo` contract without requiring any translation package:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Contracts\LocalizableSeo;
+use Zarbin\Seo\Contracts\Seoable;
+
+class ProductHolder extends Model implements Seoable, LocalizableSeo
+{
+    use HasSeo;
+
+    public function seoLocales(): array
+    {
+        return ['fa', 'en'];
+    }
+
+    public function hasSeoLocale(string $locale): bool
+    {
+        return filled($this->getTranslation('title', $locale));
+    }
+
+    public function seoUrlForLocale(string $locale): ?string
+    {
+        return route('products.index', ['locale' => $locale]);
+    }
+}
+```
+
+Render the localized page:
+
+```php
+seo()->for($holder, 'fa')->render();
+```
+
+### Route-Only Multilingual Pages
+
+Route-only pages can use route mappings or localized URL mappings:
+
+```php
+'routes' => [
+    'home' => [
+        'title' => 'Home',
+        'localized_routes' => [
+            'fa' => 'fa.home',
+            'en' => 'en.home',
+        ],
+    ],
+],
+```
+
+Resolve and render a route-only page:
+
+```php
+seo()->route('home', [], 'en')->render();
+```
+
+### Rendering Hreflang Tags
+
+Hreflang tags are included in the full renderer and Blade component:
+
+```blade
+{!! seo()->render() !!}
+<x-zarbin-seo::meta :source="$post" locale="fa" />
+```
+
+You can also render only alternates:
+
+```blade
+{!! seo()->alternates() !!}
+```
+
+### x-default
+
+`x_default` can be a locale code, an explicit URL, or `true` to use the default locale URL when available.
+
+Sitemap multilingual output will be added in the sitemap phase. Database overrides and UI are not part of this phase.
 
 ## Planned Direction
 

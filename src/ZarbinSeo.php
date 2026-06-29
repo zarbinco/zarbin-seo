@@ -132,6 +132,20 @@ final class ZarbinSeo
         return $this->set(['extra' => $extra]);
     }
 
+    public function alternateLanguages(array $links): self
+    {
+        $this->data = $this->data->withAlternateLanguages($links);
+
+        return $this;
+    }
+
+    public function addAlternateLanguage(string $locale, string $url): self
+    {
+        $this->data = $this->data->addAlternateLanguage($locale, $url);
+
+        return $this;
+    }
+
     public function for(mixed $source, ?string $locale = null): self
     {
         $this->data = $this->resolve($source, $locale);
@@ -192,6 +206,11 @@ final class ZarbinSeo
     public function jsonLd(): string
     {
         return $this->renderer()->jsonLd($this->get());
+    }
+
+    public function alternates(): string
+    {
+        return $this->renderer()->alternateLanguages($this->get());
     }
 
     private function descriptionLimit(): int
