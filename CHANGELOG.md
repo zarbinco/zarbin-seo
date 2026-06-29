@@ -31,3 +31,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added publishable package views for UI/forms.
 - Added UI authorization gate support.
 - Added database readiness warnings for UI.
+- Added CommerceData DTO.
+- Added optional CommerceSeo contract and HasCommerceSeo trait.
+- Added commerce data resolver for model/config-based product SEO.
+- Added Product JSON-LD and Offer schema support.
+- Added locale-aware currency support.
+- Added fluent commerce/product manager methods.

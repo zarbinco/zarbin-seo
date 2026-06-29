@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo;
 
+use Zarbin\Seo\Data\CommerceData;
 use Zarbin\Seo\Data\SeoData;
 use Zarbin\Seo\Data\SitemapUrl;
 use Zarbin\Seo\Generators\RobotsTxtGenerator;
@@ -134,6 +135,49 @@ final class ZarbinSeo
     public function extra(array $extra): self
     {
         return $this->set(['extra' => $extra]);
+    }
+
+    public function commerce(array|CommerceData|null $data): self
+    {
+        if ($data === null) {
+            return $this;
+        }
+
+        $commerce = $data instanceof CommerceData ? $data : CommerceData::make($data);
+        $commercePayload = $this->commercePayload($commerce);
+
+        if ($commercePayload === []) {
+            return $this;
+        }
+
+        $existingCommerce = is_array($this->data->extra['commerce'] ?? null)
+            ? $this->data->extra['commerce']
+            : [];
+        $extra = array_replace($this->data->extra, [
+            'commerce' => array_replace($existingCommerce, $commercePayload),
+        ]);
+        $type = $this->data->type;
+
+        if (
+            $commerce->hasProductIdentity()
+            || $commerce->hasOffer()
+        ) {
+            if ($type === null || $type === '' || mb_strtolower($type) === 'webpage') {
+                $type = 'Product';
+            }
+        }
+
+        $this->data = $this->data->merge([
+            'type' => $type,
+            'extra' => $extra,
+        ]);
+
+        return $this;
+    }
+
+    public function product(array|CommerceData|null $data): self
+    {
+        return $this->commerce($data);
     }
 
     public function alternateLanguages(array $links): self
@@ -325,5 +369,16 @@ final class ZarbinSeo
         }
 
         return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function commercePayload(CommerceData $commerce): array
+    {
+        return array_filter(
+            $commerce->toArray(),
+            fn (mixed $value): bool => ! ($value === null || $value === '' || $value === [])
+        );
     }
 }

@@ -6,9 +6,9 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, and optional database SEO overrides.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, optional database SEO overrides, optional plain Blade UI, and product/commerce schema support.
 
-The package intentionally does not include UI, analytics, AI, Search Console integrations, or external SEO service integrations.
+The optional plain Blade UI is disabled by default. The package still intentionally does not include analytics, AI, Search Console integrations, or external SEO service integrations.
 
 ## Installation
 
@@ -664,6 +664,139 @@ The UI and form views are intentionally plain Blade so they can be customized to
 ### Database Requirement
 
 The UI edits manual override records, so it requires the Phase 6 migration and database override feature flags. If the UI is enabled before the table is ready, it shows a warning instead of crashing.
+
+## Phase 8 Product / Commerce Schema
+
+Zarbin SEO can add lightweight product and offer JSON-LD for product-like models without depending on an ecommerce package. Commerce data lives in `SeoData::extra['commerce']`, so database override `extra` JSON can also provide manual product values when needed.
+
+### Enabling Commerce Schema
+
+Commerce output is disabled by default:
+
+```php
+'features' => [
+    'commerce' => true,
+],
+
+'commerce' => [
+    'enabled' => true,
+    'default_currency' => 'IRR',
+    'currency_per_locale' => [
+        'fa' => 'IRR',
+        'en' => 'USD',
+    ],
+],
+```
+
+### Model Config Mapping
+
+Map product fields from normal Laravel models:
+
+```php
+'models' => [
+    App\Models\Product::class => [
+        'route' => 'products.show',
+        'route_key' => 'slug',
+        'type' => 'Product',
+        'commerce' => [
+            'enabled' => true,
+            'name' => 'name',
+            'description' => ['short_description', 'description'],
+            'image' => 'image_url',
+            'price' => 'price',
+            'currency' => 'currency',
+            'sku' => 'sku',
+            'brand' => 'brand.name',
+            'availability' => 'stock_status',
+            'condition' => 'condition',
+        ],
+    ],
+],
+```
+
+### CommerceSeo Contract
+
+Models can provide product data directly:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Contracts\CommerceSeo;
+use Zarbin\Seo\Contracts\Seoable;
+use Zarbin\Seo\Data\CommerceData;
+
+class Product extends Model implements Seoable, CommerceSeo
+{
+    use HasSeo;
+
+    public function toCommerceData(?string $locale = null): CommerceData|array|null
+    {
+        return CommerceData::make([
+            'name' => $this->name,
+            'price' => $this->price,
+            'currency' => 'IRR',
+            'availability' => $this->stock > 0 ? 'in_stock' : 'out_of_stock',
+            'brand' => $this->brand?->name,
+            'sku' => $this->sku,
+        ]);
+    }
+}
+```
+
+### HasCommerceSeo Trait
+
+Use `HasCommerceSeo` when you prefer small overridable methods:
+
+```php
+use Zarbin\Seo\Concerns\HasCommerceSeo;
+
+class Product extends Model implements Seoable, CommerceSeo
+{
+    use HasSeo;
+    use HasCommerceSeo;
+
+    public function seoProductPrice(?string $locale = null): int|float|string|null
+    {
+        return $this->price;
+    }
+
+    public function seoProductAvailability(?string $locale = null): ?string
+    {
+        return $this->stock > 0 ? 'in_stock' : 'out_of_stock';
+    }
+}
+```
+
+### Locale-Aware Currency
+
+When a product does not provide a currency, Zarbin SEO can use `commerce.currency_per_locale` and then `commerce.default_currency`.
+
+### Manual Fluent Commerce Data
+
+You can attach product/offer data manually for the current request:
+
+```php
+seo()
+    ->title('Product title')
+    ->commerce([
+        'price' => 120000,
+        'currency' => 'IRR',
+        'availability' => 'in_stock',
+    ])
+    ->render();
+```
+
+`product()` is an alias for `commerce()`.
+
+### ProductHolder / CollectionPage Note
+
+Holder and listing pages should usually remain `CollectionPage`. Zarbin SEO will not turn an explicit `CollectionPage` into `Product` unless the model commerce config sets `force_type` to `true`. ItemList schema for holder/listing pages can be added in a later phase.
+
+### Rendered JSON-LD Output
+
+When product commerce data is available, `seo()->jsonLd()` renders a Product schema with an Offer block when offer fields such as price, currency, availability, condition, or seller are present.
+
+This phase adds no ecommerce package dependency and no UI/database schema changes.
 
 ## Planned Direction
 

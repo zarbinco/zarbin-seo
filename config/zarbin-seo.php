@@ -70,6 +70,26 @@ return [
         'ignore_missing_table' => true,
     ],
 
+    'commerce' => [
+        'enabled' => false,
+        'default_currency' => null,
+        'currency_per_locale' => [],
+        'availability_map' => [
+            'in_stock' => 'https://schema.org/InStock',
+            'out_of_stock' => 'https://schema.org/OutOfStock',
+            'preorder' => 'https://schema.org/PreOrder',
+            'backorder' => 'https://schema.org/BackOrder',
+            'discontinued' => 'https://schema.org/Discontinued',
+            'soldout' => 'https://schema.org/SoldOut',
+        ],
+        'condition_map' => [
+            'new' => 'https://schema.org/NewCondition',
+            'used' => 'https://schema.org/UsedCondition',
+            'refurbished' => 'https://schema.org/RefurbishedCondition',
+            'damaged' => 'https://schema.org/DamagedCondition',
+        ],
+    ],
+
     'rendering' => [
         'minify' => false,
         'pretty_json' => false,

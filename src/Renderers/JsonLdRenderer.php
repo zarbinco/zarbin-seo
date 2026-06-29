@@ -6,6 +6,7 @@ namespace Zarbin\Seo\Renderers;
 
 use Throwable;
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Schema\ProductSchemaBuilder;
 use Zarbin\Seo\Support\Html;
 
 final class JsonLdRenderer
@@ -14,6 +15,12 @@ final class JsonLdRenderer
     {
         if (! $this->config('zarbin-seo.features.schema', true)) {
             return '';
+        }
+
+        $payload = (new ProductSchemaBuilder)->build($data);
+
+        if ($payload !== null) {
+            return $this->script($payload);
         }
 
         $name = $data->title ?: $data->siteName;
@@ -31,6 +38,14 @@ final class JsonLdRenderer
             'image' => $data->image,
         ], fn (mixed $value): bool => $value !== null && $value !== '');
 
+        return $this->script($payload);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function script(array $payload): string
+    {
         $json = json_encode($payload, $this->jsonFlags());
 
         if ($json === false) {

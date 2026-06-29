@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo\Resolvers;
 
+use Zarbin\Seo\Data\CommerceData;
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Support\CommerceConfig;
 use Zarbin\Seo\Support\LocaleHelper;
 
 final class SeoSourceResolver
@@ -16,6 +18,7 @@ final class SeoSourceResolver
         private readonly AlternateLanguageResolver $alternates = new AlternateLanguageResolver,
         private readonly TranslationAvailabilityResolver $availability = new TranslationAvailabilityResolver,
         private readonly DatabaseSeoOverrideResolver $database = new DatabaseSeoOverrideResolver,
+        private readonly CommerceDataResolver $commerce = new CommerceDataResolver,
     ) {}
 
     public function resolve(mixed $source = null, ?string $locale = null): SeoData
@@ -33,7 +36,11 @@ final class SeoSourceResolver
                 ->resolve(null, $locale)
                 ->merge($this->nonEmptyData(SeoData::fromArray($source)));
 
-            return $this->withSourceLocalization($data, $source, $locale);
+            return $this->withCommerceData(
+                $this->withSourceLocalization($data, $source, $locale),
+                $source,
+                $locale
+            );
         }
 
         if (is_object($source)) {
@@ -43,7 +50,11 @@ final class SeoSourceResolver
                 $locale
             );
 
-            return $this->withDatabaseOverride($data, $this->database->resolveForSource($source, $locale));
+            return $this->withCommerceData(
+                $this->withDatabaseOverride($data, $this->database->resolveForSource($source, $locale)),
+                $source,
+                $locale
+            );
         }
 
         if (is_string($source)) {
@@ -128,6 +139,47 @@ final class SeoSourceResolver
         }
 
         return $data->merge($this->nonEmptyData($override));
+    }
+
+    private function withCommerceData(SeoData $data, mixed $source, ?string $locale): SeoData
+    {
+        $commerce = $this->commerce->resolve($source, $locale);
+
+        if ($commerce === null) {
+            return $data;
+        }
+
+        $extra = array_replace($data->extra, [
+            'commerce' => $this->commercePayload($commerce),
+        ]);
+
+        $type = $data->type;
+        $forceType = is_object($source) && (bool) (CommerceConfig::modelConfig($source)['force_type'] ?? false);
+
+        if (
+            $forceType
+            || $type === null
+            || $type === ''
+            || mb_strtolower($type) === 'webpage'
+        ) {
+            $type = 'Product';
+        }
+
+        return $data->merge([
+            'type' => $type,
+            'extra' => $extra,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function commercePayload(CommerceData $commerce): array
+    {
+        return array_filter(
+            $commerce->toArray(),
+            fn (mixed $value): bool => ! ($value === null || $value === '' || $value === [])
+        );
     }
 
     /**

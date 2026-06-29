@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zarbin\Seo\ZarbinSeo siteName(?string $siteName)
  * @method static \Zarbin\Seo\ZarbinSeo separator(?string $separator)
  * @method static \Zarbin\Seo\ZarbinSeo extra(array $extra)
+ * @method static \Zarbin\Seo\ZarbinSeo commerce(array|\Zarbin\Seo\Data\CommerceData|null $data)
+ * @method static \Zarbin\Seo\ZarbinSeo product(array|\Zarbin\Seo\Data\CommerceData|null $data)
  * @method static \Zarbin\Seo\ZarbinSeo alternateLanguages(array $links)
  * @method static \Zarbin\Seo\ZarbinSeo addAlternateLanguage(string $locale, string $url)
  * @method static \Zarbin\Seo\ZarbinSeo for(mixed $source, ?string $locale = null)
