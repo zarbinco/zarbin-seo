@@ -11,6 +11,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added E2E documentation.
 - Added bulletproof hardening tests for optional database, routes, localization, rendering, sitemap/robots, commerce, UI, and commands.
 - Added hardening documentation.
+- Added Persian documentation for installation, quick start, model/holder/route SEO, rendering, multilingual SEO, sitemap/robots, database overrides, UI, commerce schema, commands, configuration, and testing.
 
 ### Fixed
 

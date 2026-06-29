@@ -1,5 +1,12 @@
 # Zarbin SEO
 
+<p align="center">
+  <strong>Documentation:</strong>
+  <a href="README.md">English</a>
+  ·
+  <a href="docs/fa/README.md">فارسی</a>
+</p>
+
 Zarbin SEO is a lightweight, Laravel-native SEO toolkit for model-aware, route-aware, and multilingual metadata workflows.
 
 It is inspired by common SEO editorial workflows and concepts popularized by tools such as Yoast SEO, but it is not a WordPress clone and is not affiliated with Yoast.
@@ -7,6 +14,11 @@ It is inspired by common SEO editorial workflows and concepts popularized by too
 ## Development Status
 
 Pre-release / v0.1.0 candidate. The package is ready for early testing, but the public API may still evolve before a stable release.
+
+## Documentation
+
+- English: [README.md](README.md)
+- فارسی: [docs/fa/README.md](docs/fa/README.md)
 
 ## Features
 
