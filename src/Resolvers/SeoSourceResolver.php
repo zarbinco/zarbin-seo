@@ -15,6 +15,7 @@ final class SeoSourceResolver
         private readonly RouteSeoResolver $routes = new RouteSeoResolver,
         private readonly AlternateLanguageResolver $alternates = new AlternateLanguageResolver,
         private readonly TranslationAvailabilityResolver $availability = new TranslationAvailabilityResolver,
+        private readonly DatabaseSeoOverrideResolver $database = new DatabaseSeoOverrideResolver,
     ) {}
 
     public function resolve(mixed $source = null, ?string $locale = null): SeoData
@@ -36,11 +37,13 @@ final class SeoSourceResolver
         }
 
         if (is_object($source)) {
-            return $this->withSourceLocalization(
+            $data = $this->withSourceLocalization(
                 $this->models->resolve($source, $locale),
                 $source,
                 $locale
             );
+
+            return $this->withDatabaseOverride($data, $this->database->resolveForSource($source, $locale));
         }
 
         if (is_string($source)) {
@@ -61,9 +64,11 @@ final class SeoSourceResolver
             ? []
             : $this->alternates->forRoute($routeName, $parameters, $currentLocale);
 
-        return $alternates === []
+        $data = $alternates === []
             ? $data
             : $data->withAlternateLanguages($alternates);
+
+        return $this->withDatabaseOverride($data, $this->database->resolveForRoute($routeName, $locale));
     }
 
     /**
@@ -114,6 +119,15 @@ final class SeoSourceResolver
                 ],
             ]),
         };
+    }
+
+    private function withDatabaseOverride(SeoData $data, ?SeoData $override): SeoData
+    {
+        if ($override === null) {
+            return $data;
+        }
+
+        return $data->merge($this->nonEmptyData($override));
     }
 
     /**

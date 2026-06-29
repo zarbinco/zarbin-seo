@@ -6,9 +6,9 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, and sitemap/robots.txt generation.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, and optional database SEO overrides.
 
-The package intentionally does not include UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations yet.
+The package intentionally does not include UI, analytics, AI, Search Console integrations, or external SEO service integrations.
 
 ## Installation
 
@@ -92,7 +92,7 @@ final class Product implements Seoable
 }
 ```
 
-UI and database overrides are planned for upcoming phases.
+UI for editing SEO metadata is planned for an upcoming phase.
 
 ## Phase 2 Source Resolution
 
@@ -228,7 +228,7 @@ public function show(Post $post)
 
 The renderer currently outputs title, meta description, canonical, robots, hreflang alternate links, Open Graph, Twitter/X Card, and basic JSON-LD tags.
 
-Database overrides and UI are not part of this phase.
+UI and database-backed editing screens are not part of this phase.
 
 ## Phase 4 Multilingual SEO
 
@@ -332,7 +332,7 @@ You can also render only alternates:
 
 `x_default` can be a locale code, an explicit URL, or `true` to use the default locale URL when available.
 
-Database overrides and UI are not part of this phase.
+UI and database-backed editing screens are not part of this phase.
 
 ## Phase 5 Sitemap And Robots.txt
 
@@ -464,7 +464,124 @@ public function sitemapLastModified(?string $locale = null): mixed
 
 When no sitemap URL is configured, robots.txt will point to the generated sitemap index when possible.
 
-Database overrides and UI are not part of this phase. Artisan commands are planned for a later developer-experience phase.
+UI and database-backed editing screens are not part of this phase. Artisan commands are planned for a later developer-experience phase.
+
+## Phase 6 Optional Database Overrides
+
+Database SEO overrides are optional. The package works normally without the table, and it will not query the database unless both `features.database_overrides` and `database.enabled` are true.
+
+### Publishing And Running The Migration
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-migrations
+php artisan migrate
+```
+
+### Enabling Database Overrides
+
+```php
+'features' => [
+    'database_overrides' => true,
+],
+
+'database' => [
+    'enabled' => true,
+],
+```
+
+If the feature is enabled before the migration is run, `ignore_missing_table` keeps normal SEO resolution working without crashing the app.
+
+### Model-Backed Page Overrides
+
+```php
+seo()->saveOverride($post, [
+    'title' => 'Custom SEO title',
+    'description' => 'Custom SEO description',
+    'canonical' => 'https://example.com/custom-post',
+    'robots' => ['index', 'follow'],
+], 'fa');
+
+seo()->for($post, 'fa')->render();
+```
+
+### Holder Page Overrides
+
+Holder models such as `ProductHolder`, `BlogHolder`, and `HomePage` use the same API:
+
+```php
+seo()->saveOverride($productHolder, [
+    'title' => 'Custom products title',
+    'schema_type' => 'CollectionPage',
+], 'en');
+```
+
+### Route-Only Page Overrides
+
+```php
+seo()->saveOverride('home', [
+    'title' => 'Custom homepage title',
+    'description' => 'Custom homepage description',
+], 'en');
+
+seo()->route('home', [], 'en')->render();
+```
+
+### Locale-Specific Overrides
+
+The locale is stored alongside the target, so each model or route can have separate manual SEO values per language:
+
+```php
+seo()->saveOverride($post, ['title' => 'عنوان فارسی'], 'fa');
+seo()->saveOverride($post, ['title' => 'English title'], 'en');
+```
+
+### Social Overrides
+
+Open Graph and Twitter/X card values can be stored in dedicated columns or developer-friendly nested arrays:
+
+```php
+seo()->saveOverride($post, [
+    'open_graph' => [
+        'title' => 'Custom share title',
+        'description' => 'Custom share description',
+        'image' => 'https://example.com/share.jpg',
+    ],
+    'twitter' => [
+        'title' => 'Custom X title',
+        'description' => 'Custom X description',
+        'image' => 'https://example.com/x.jpg',
+    ],
+    'schema_type' => 'Article',
+    'extra' => [
+        'editor_note' => 'Reviewed manually',
+    ],
+]);
+```
+
+### Optional Model Trait
+
+Eloquent models can use `HasSeoMeta` for local helpers:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Concerns\HasSeoMeta;
+use Zarbin\Seo\Contracts\Seoable;
+
+class Post extends Model implements Seoable
+{
+    use HasSeo;
+    use HasSeoMeta;
+}
+```
+
+```php
+$post->saveSeoMeta(['title' => 'Manual SEO title'], 'fa');
+$post->seoMetaForLocale('fa');
+$post->deleteSeoMeta('fa');
+```
+
+UI for editing SEO overrides will be added in a later phase.
 
 ## Planned Direction
 

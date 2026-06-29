@@ -20,3 +20,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added robots.txt generation.
 - Added optional public sitemap and robots routes.
 - Added optional Sitemapable contract.
+- Added optional SEO database override migration.
+- Added SeoMeta model and repository.
+- Added database override resolver.
+- Added HasSeoMeta trait.
+- Added route and model override APIs.
+- Added social override support for Open Graph and Twitter cards.

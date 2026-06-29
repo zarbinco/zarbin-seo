@@ -9,6 +9,7 @@ use Zarbin\Seo\Data\SitemapUrl;
 use Zarbin\Seo\Generators\RobotsTxtGenerator;
 use Zarbin\Seo\Generators\SitemapGenerator;
 use Zarbin\Seo\Renderers\SeoRenderer;
+use Zarbin\Seo\Repositories\SeoMetaRepository;
 use Zarbin\Seo\Resolvers\SeoSourceResolver;
 use Zarbin\Seo\Support\Text;
 
@@ -237,6 +238,40 @@ final class ZarbinSeo
     public function robotsTxt(): string
     {
         return (new RobotsTxtGenerator)->render();
+    }
+
+    public function seoMetaRepository(): SeoMetaRepository
+    {
+        return new SeoMetaRepository;
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function saveOverride(mixed $source, array $attributes, ?string $locale = null): mixed
+    {
+        if (is_string($source)) {
+            return $this->seoMetaRepository()->saveForRoute($source, $attributes, $locale);
+        }
+
+        if (is_object($source)) {
+            return $this->seoMetaRepository()->saveForSource($source, $attributes, $locale);
+        }
+
+        return null;
+    }
+
+    public function deleteOverride(mixed $source, ?string $locale = null): bool
+    {
+        if (is_string($source)) {
+            return $this->seoMetaRepository()->deleteForRoute($source, $locale);
+        }
+
+        if (is_object($source)) {
+            return $this->seoMetaRepository()->deleteForSource($source, $locale);
+        }
+
+        return false;
     }
 
     private function descriptionLimit(): int

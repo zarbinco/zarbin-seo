@@ -27,11 +27,13 @@ final class TwitterCardRenderer
      */
     private function tags(SeoData $data): array
     {
+        $image = $this->extraValue($data, 'twitter_image', 'twitter', 'image') ?? $data->image;
+
         $values = [
-            'twitter:card' => $data->hasImage() ? 'summary_large_image' : 'summary',
-            'twitter:title' => $data->title ?: $data->siteName,
-            'twitter:description' => $data->description,
-            'twitter:image' => $data->image,
+            'twitter:card' => $image !== null && $image !== '' ? 'summary_large_image' : 'summary',
+            'twitter:title' => $this->extraValue($data, 'twitter_title', 'twitter', 'title') ?? ($data->title ?: $data->siteName),
+            'twitter:description' => $this->extraValue($data, 'twitter_description', 'twitter', 'description') ?? $data->description,
+            'twitter:image' => $image,
         ];
 
         $tags = [];
@@ -45,6 +47,24 @@ final class TwitterCardRenderer
         }
 
         return $tags;
+    }
+
+    private function extraValue(SeoData $data, string $directKey, string $group, string $nestedKey): ?string
+    {
+        $value = $data->extra[$directKey] ?? null;
+
+        if (! $this->filled($value)) {
+            $value = isset($data->extra[$group]) && is_array($data->extra[$group])
+                ? ($data->extra[$group][$nestedKey] ?? null)
+                : null;
+        }
+
+        return $this->filled($value) && is_scalar($value) ? (string) $value : null;
+    }
+
+    private function filled(mixed $value): bool
+    {
+        return ! ($value === null || $value === '' || $value === []);
     }
 
     private function config(string $key, mixed $default = null): mixed

@@ -41,6 +41,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<int, \Zarbin\Seo\Data\SitemapUrl> sitemapUrls(?string $locale = null)
  * @method static string sitemapIndex()
  * @method static string robotsTxt()
+ * @method static \Zarbin\Seo\Repositories\SeoMetaRepository seoMetaRepository()
+ * @method static mixed saveOverride(mixed $source, array $attributes, ?string $locale = null)
+ * @method static bool deleteOverride(mixed $source, ?string $locale = null)
  *
  * @see \Zarbin\Seo\ZarbinSeo
  */

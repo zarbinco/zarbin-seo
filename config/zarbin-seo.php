@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Zarbin\Seo\Models\SeoMeta;
 
 return [
     'defaults' => [
@@ -59,6 +60,14 @@ return [
         'allow' => [],
         'disallow' => [],
         'sitemaps' => [],
+    ],
+
+    'database' => [
+        'enabled' => false,
+        'table' => 'seo_meta',
+        'model' => SeoMeta::class,
+        'route_type' => 'route',
+        'ignore_missing_table' => true,
     ],
 
     'rendering' => [

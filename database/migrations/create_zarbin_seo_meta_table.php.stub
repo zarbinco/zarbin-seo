@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create(config('zarbin-seo.database.table', 'seo_meta'), function (Blueprint $table): void {
+            $table->id();
+            $table->string('seoable_type');
+            $table->string('seoable_id');
+            $table->string('locale', 20)->default('');
+            $table->text('title')->nullable();
+            $table->text('description')->nullable();
+            $table->text('canonical_url')->nullable();
+            $table->json('robots')->nullable();
+            $table->text('image')->nullable();
+            $table->text('og_title')->nullable();
+            $table->text('og_description')->nullable();
+            $table->text('og_image')->nullable();
+            $table->text('twitter_title')->nullable();
+            $table->text('twitter_description')->nullable();
+            $table->text('twitter_image')->nullable();
+            $table->string('schema_type')->nullable();
+            $table->json('extra')->nullable();
+            $table->timestamps();
+
+            $table->unique(['seoable_type', 'seoable_id', 'locale'], 'zarbin_seo_meta_unique');
+            $table->index(['seoable_type', 'seoable_id'], 'zarbin_seo_meta_seoable_index');
+            $table->index('locale', 'zarbin_seo_meta_locale_index');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists(config('zarbin-seo.database.table', 'seo_meta'));
+    }
+};
