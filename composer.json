@@ -1,6 +1,7 @@
 {
     "name": "zarbinco/zarbin-seo",
     "description": "Lightweight model-aware SEO toolkit for Laravel.",
+    "homepage": "https://github.com/zarbinco/zarbin-seo",
     "keywords": [
         "laravel",
         "seo",
@@ -8,10 +9,22 @@
         "sitemap",
         "schema",
         "opengraph",
-        "twitter-card"
+        "twitter-card",
+        "robots",
+        "json-ld"
     ],
     "license": "MIT",
     "type": "library",
+    "authors": [
+        {
+            "name": "Zarbin",
+            "homepage": "https://github.com/zarbinco"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/zarbinco/zarbin-seo/issues",
+        "source": "https://github.com/zarbinco/zarbin-seo"
+    },
     "require": {
         "php": "^8.2",
         "illuminate/database": "^10.0|^11.0|^12.0|^13.0",

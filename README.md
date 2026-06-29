@@ -1,14 +1,30 @@
 # Zarbin SEO
 
-Zarbin SEO is a lightweight, Laravel-native SEO toolkit for applications that want predictable metadata, schema, sitemap, localization, and model-aware SEO workflows without adopting a heavy admin stack.
+Zarbin SEO is a lightweight, Laravel-native SEO toolkit for model-aware, route-aware, and multilingual metadata workflows.
 
-The package is inspired by common SEO editorial workflows and concepts popularized by tools such as Yoast SEO, but it is not a WordPress clone and is not affiliated with Yoast.
+It is inspired by common SEO editorial workflows and concepts popularized by tools such as Yoast SEO, but it is not a WordPress clone and is not affiliated with Yoast.
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, optional database SEO overrides, optional plain Blade UI, product/commerce schema support, and Artisan developer-experience commands.
+Pre-release / v0.1.0 candidate. The package is ready for early testing, but the public API may still evolve before a stable release.
 
-The optional plain Blade UI is disabled by default. The package still intentionally does not include analytics, AI, Search Console integrations, or external SEO service integrations.
+## Features
+
+- Fluent SEO manager available through `seo()` and the `ZarbinSeo` facade.
+- Immutable-ish `SeoData` data object.
+- Model, holder, route, array, and default SEO source resolution.
+- Blade rendering for title, meta description, canonical, robots, Open Graph, Twitter/X cards, hreflang, and JSON-LD.
+- Multilingual SEO with alternate language URLs, `x-default`, and missing translation strategies.
+- XML sitemap, sitemap index, and robots.txt generation.
+- Optional database overrides for manual SEO values.
+- Optional plain Blade UI and embeddable SEO form component.
+- Product and commerce schema support without ecommerce package dependencies.
+- Artisan commands for install, doctor/readiness checks, source inspection, sitemap export, and robots.txt export.
+
+## Requirements
+
+- PHP `^8.2`
+- Laravel/Illuminate `^10.0`, `^11.0`, `^12.0`, or `^13.0`
 
 ## Installation
 
@@ -16,89 +32,53 @@ The optional plain Blade UI is disabled by default. The package still intentiona
 composer require zarbinco/zarbin-seo
 ```
 
-## Publishing The Config
+## Publish Config
 
 ```bash
-php artisan vendor:publish --tag="zarbin-seo-config"
+php artisan vendor:publish --tag=zarbin-seo-config
 ```
 
-## Current Usage
+Optional resources:
 
-```php
-use Zarbin\Seo\Facades\ZarbinSeo;
-
-ZarbinSeo::name(); // zarbin-seo
-ZarbinSeo::version();
+```bash
+php artisan vendor:publish --tag=zarbin-seo-migrations
+php artisan vendor:publish --tag=zarbin-seo-views
 ```
 
-You can also resolve the package service directly:
+The migration is only needed when you enable database-backed manual overrides. Views are only needed when you want to customize the optional Blade UI or form components.
 
-```php
-$seo = app('zarbin-seo');
+## Quick Start
 
-$seo->name();
-$seo->version();
+Render the current request SEO tags in your layout:
+
+```blade
+{!! seo()->render() !!}
 ```
 
-## Phase 1 Usage
-
-Use the fluent manager to compose SEO data for the current request:
+Resolve SEO data in a controller:
 
 ```php
-$data = seo()
-    ->reset()
-    ->title('Product title')
-    ->description('Concise search result description')
-    ->canonical(route('products.show', $product))
-    ->robots('index, follow')
-    ->get();
-
-$data->toArray();
-```
-
-Create a data object directly when you already have normalized values:
-
-```php
-use Zarbin\Seo\Data\SeoData;
-
-$data = SeoData::make([
-    'title' => 'About Zarbin',
-    'description' => 'A short description for search results.',
-    'robots' => ['index', 'follow'],
-]);
-
-$data->robotsContent(); // index, follow
-```
-
-Models can opt into SEO data with the contract and trait:
-
-```php
-use Zarbin\Seo\Concerns\HasSeo;
-use Zarbin\Seo\Contracts\Seoable;
-
-final class Product implements Seoable
+public function show(Post $post)
 {
-    use HasSeo;
+    seo()->for($post);
 
-    public function seoTitle(?string $locale = null): ?string
-    {
-        return $this->name;
-    }
-
-    public function seoDescription(?string $locale = null): ?string
-    {
-        return $this->summary;
-    }
+    return view('posts.show', compact('post'));
 }
 ```
 
-Advanced admin editing workflows are planned for future phases.
+Or compose SEO data directly:
 
-## Phase 2 Source Resolution
+```php
+seo()
+    ->title('About Us')
+    ->description('Learn more about our company.')
+    ->canonical(route('about'))
+    ->render();
+```
 
-Zarbin SEO can now resolve `SeoData` from models, model-backed holder pages, route-only pages, raw arrays, existing `SeoData` objects, and defaults.
+## Model-Aware SEO
 
-### Resolving SEO From A Model
+Models can implement `Seoable` and use `HasSeo`:
 
 ```php
 use Illuminate\Database\Eloquent\Model;
@@ -118,18 +98,36 @@ class Post extends Model implements Seoable
     {
         return $this->excerpt;
     }
-}
 
-$data = seo()->for($post)->get();
+    public function seoCanonicalUrl(?string $locale = null): ?string
+    {
+        return route('posts.show', $this);
+    }
+}
 ```
 
-### Resolving SEO From A Model-Backed Holder
+You can also configure mappings for normal Laravel or Eloquent-like models:
 
 ```php
-use Illuminate\Database\Eloquent\Model;
-use Zarbin\Seo\Concerns\HasSeo;
-use Zarbin\Seo\Contracts\Seoable;
+'models' => [
+    App\Models\Post::class => [
+        'title' => 'title',
+        'description' => ['excerpt', 'content'],
+        'image' => 'cover_image_url',
+        'route' => 'posts.show',
+        'route_key' => 'slug',
+        'type' => 'Article',
+    ],
+],
+```
 
+`seo()->for($post)->get()` resolves fallback defaults, configured mappings, `Seoable` values, multilingual state, optional database overrides, and optional commerce data.
+
+## Holder Pages
+
+Model-backed holder pages such as `ProductHolder`, `BlogHolder`, or `HomePage` work like any other `Seoable` model:
+
+```php
 class ProductHolder extends Model implements Seoable
 {
     use HasSeo;
@@ -144,95 +142,60 @@ class ProductHolder extends Model implements Seoable
         return 'CollectionPage';
     }
 }
-
-$data = seo()->for($productHolder)->get();
 ```
 
-### Resolving SEO From A Route-Only Page
+Route-only holder pages can use route mappings instead.
 
-```php
-$data = seo()->route('home')->get();
-```
+## Route-Only SEO
 
-### Configuring Model Mappings
-
-```php
-'models' => [
-    Product::class => [
-        'title' => 'name',
-        'description' => ['excerpt', 'description', 'content'],
-        'image' => ['image_url', 'cover_image_url'],
-        'route' => 'products.show',
-        'route_key' => 'slug',
-        'type' => 'Product',
-    ],
-],
-```
-
-### Configuring Route Mappings
+Configure SEO data for pages that do not have a model:
 
 ```php
 'routes' => [
     'home' => [
         'title' => 'Home',
-        'description' => 'Welcome to our website',
+        'description' => 'Welcome to our website.',
+        'canonical' => 'https://example.com',
         'schema' => 'WebPage',
         'sitemap' => true,
-    ],
-    'products.index' => [
-        'title' => 'Products',
-        'description' => 'Browse our products',
-        'schema' => 'CollectionPage',
     ],
 ],
 ```
 
-### Resolver Priority
+Use it in controllers, layouts, or middleware:
 
-Resolution starts with defaults and common attributes, then applies config mappings, then applies non-empty `Seoable::toSeoData()` values last. That means explicit model SEO methods beat config mappings, while config and defaults still fill any missing values.
+```php
+seo()->route('home')->render();
+```
 
-## Phase 3 HTML Rendering
+## Rendering
 
-Render the current SEO state directly inside your layout `<head>`:
+Full render:
 
 ```blade
 {!! seo()->render() !!}
 ```
 
-Or render individual segments when your layout needs tighter control:
+Segmented render methods:
 
 ```blade
 {!! seo()->meta() !!}
 {!! seo()->openGraph() !!}
 {!! seo()->twitter() !!}
 {!! seo()->jsonLd() !!}
+{!! seo()->alternates() !!}
 ```
 
-Use the Blade component when you prefer component syntax:
+Blade component:
 
 ```blade
 <x-zarbin-seo::meta />
-<x-zarbin-seo::meta :source="$post" />
+<x-zarbin-seo::meta :source="$post" locale="fa" />
 ```
 
-In controllers or page actions, resolve the current page before returning the view:
+## Multilingual SEO
 
-```php
-public function show(Post $post)
-{
-    seo()->for($post);
-
-    return view('posts.show', compact('post'));
-}
-```
-
-The renderer currently outputs title, meta description, canonical, robots, hreflang alternate links, Open Graph, Twitter/X Card, and basic JSON-LD tags.
-
-UI and database-backed editing screens are not part of this phase.
-
-## Phase 4 Multilingual SEO
-
-Enable lightweight locale-aware resolution and hreflang rendering in the package config:
+Enable localization and configure supported locales:
 
 ```php
 'localization' => [
@@ -246,25 +209,12 @@ Enable lightweight locale-aware resolution and hreflang rendering in the package
 ],
 ```
 
-### Missing Translation Strategy
-
-`hide` skips unavailable locales in alternate links and marks the resolved data with `available_for_locale => false`.
-
-`fallback` can point unavailable locales at the default locale URL and marks the resolved data with `used_locale_fallback => true`.
-
-`noindex` skips unavailable locales in alternate links and changes the current robots value to `noindex, follow`.
-
-### Model-Backed Multilingual Pages And Holders
-
-Models and holder pages can opt into the optional `LocalizableSeo` contract without requiring any translation package:
+Models can implement `LocalizableSeo` when they know which languages exist:
 
 ```php
-use Illuminate\Database\Eloquent\Model;
-use Zarbin\Seo\Concerns\HasSeo;
 use Zarbin\Seo\Contracts\LocalizableSeo;
-use Zarbin\Seo\Contracts\Seoable;
 
-class ProductHolder extends Model implements Seoable, LocalizableSeo
+class Post extends Model implements Seoable, LocalizableSeo
 {
     use HasSeo;
 
@@ -280,75 +230,28 @@ class ProductHolder extends Model implements Seoable, LocalizableSeo
 
     public function seoUrlForLocale(string $locale): ?string
     {
-        return route('products.index', ['locale' => $locale]);
+        return route('posts.show', ['locale' => $locale, 'post' => $this->slug]);
     }
 }
 ```
 
-Render the localized page:
+Missing translation strategies:
 
-```php
-seo()->for($holder, 'fa')->render();
+- `hide`: mark the current SEO data as unavailable in `extra` and skip unavailable alternates.
+- `fallback`: use fallback URLs where possible and mark fallback usage in `extra`.
+- `noindex`: add `noindex` to robots for unavailable current locale content.
+
+When alternates are available, Zarbin SEO renders:
+
+```html
+<link rel="alternate" hreflang="fa" href="https://example.com/fa/posts/hello">
+<link rel="alternate" hreflang="en" href="https://example.com/en/posts/hello">
+<link rel="alternate" hreflang="x-default" href="https://example.com/fa/posts/hello">
 ```
 
-### Route-Only Multilingual Pages
+## Sitemap And Robots.txt
 
-Route-only pages can use route mappings or localized URL mappings:
-
-```php
-'routes' => [
-    'home' => [
-        'title' => 'Home',
-        'localized_routes' => [
-            'fa' => 'fa.home',
-            'en' => 'en.home',
-        ],
-    ],
-],
-```
-
-Resolve and render a route-only page:
-
-```php
-seo()->route('home', [], 'en')->render();
-```
-
-### Rendering Hreflang Tags
-
-Hreflang tags are included in the full renderer and Blade component:
-
-```blade
-{!! seo()->render() !!}
-<x-zarbin-seo::meta :source="$post" locale="fa" />
-```
-
-You can also render only alternates:
-
-```blade
-{!! seo()->alternates() !!}
-```
-
-### x-default
-
-`x_default` can be a locale code, an explicit URL, or `true` to use the default locale URL when available.
-
-UI and database-backed editing screens are not part of this phase.
-
-## Phase 5 Sitemap And Robots.txt
-
-Zarbin SEO can generate lightweight XML sitemaps and robots.txt output from route mappings, model-backed pages, and holder pages.
-
-### Sitemap Generation
-
-Render the sitemap directly:
-
-```php
-seo()->sitemap();
-seo()->sitemapIndex();
-seo()->robotsTxt();
-```
-
-The package also registers public routes when enabled:
+Public package routes are registered by default:
 
 ```text
 /sitemap.xml
@@ -356,7 +259,7 @@ The package also registers public routes when enabled:
 /robots.txt
 ```
 
-### Route-Only Sitemap Entries
+Route sitemap entry:
 
 ```php
 'routes' => [
@@ -370,7 +273,7 @@ The package also registers public routes when enabled:
 ],
 ```
 
-### Model-Backed Sitemap Entries
+Model sitemap source:
 
 ```php
 'models' => [
@@ -387,34 +290,7 @@ The package also registers public routes when enabled:
 ],
 ```
 
-### Holder Page Sitemap Entries
-
-Holder pages such as `ProductHolder`, `BlogHolder`, or `HomePage` can be returned from `sitemap_items` or `sitemap_source` the same way as normal models:
-
-```php
-'models' => [
-    App\Models\ProductHolder::class => [
-        'sitemap' => true,
-        'sitemap_items' => [app(App\Models\ProductHolder::class)],
-        'priority' => 0.9,
-        'change_frequency' => 'daily',
-    ],
-],
-```
-
-### Multilingual Sitemap Output
-
-When localization is enabled, sitemap generation can emit one URL per configured locale and include alternate language links where URLs are available:
-
-```php
-seo()->sitemap('fa');
-seo()->sitemap('en');
-seo()->sitemap(); // all configured locales
-```
-
-### Model Sitemap Methods
-
-Models may implement the optional `Sitemapable` contract, or simply expose matching methods:
+Models may implement `Sitemapable` or expose matching methods:
 
 ```php
 public function shouldBeInSitemap(?string $locale = null): bool
@@ -424,22 +300,7 @@ public function shouldBeInSitemap(?string $locale = null): bool
 
 public function sitemapUrl(?string $locale = null): ?string
 {
-    return route('posts.show', $this->slug);
-}
-
-public function sitemapUrlForLocale(string $locale): ?string
-{
-    return route('posts.show', ['locale' => $locale, 'post' => $this->slug]);
-}
-
-public function sitemapPriority(?string $locale = null): float
-{
-    return $this->is_featured ? 0.9 : 0.6;
-}
-
-public function sitemapChangeFrequency(?string $locale = null): string
-{
-    return 'weekly';
+    return route('posts.show', $this);
 }
 
 public function sitemapLastModified(?string $locale = null): mixed
@@ -448,36 +309,31 @@ public function sitemapLastModified(?string $locale = null): mixed
 }
 ```
 
-### Robots.txt Generation
+Commands:
 
-```php
-'robots_txt' => [
-    'enabled' => true,
-    'route_enabled' => true,
-    'path' => 'robots.txt',
-    'user_agent' => '*',
-    'allow' => ['/'],
-    'disallow' => ['/admin'],
-    'sitemaps' => [],
-],
+```bash
+php artisan zarbin-seo:sitemap
+php artisan zarbin-seo:sitemap --locale=fa
+php artisan zarbin-seo:sitemap --index
+php artisan zarbin-seo:sitemap --output=public/sitemap.xml
+php artisan zarbin-seo:sitemap --count
+
+php artisan zarbin-seo:robots
+php artisan zarbin-seo:robots --output=public/robots.txt
 ```
 
-When no sitemap URL is configured, robots.txt will point to the generated sitemap index when possible.
+Commands do not write files unless `--output` is provided.
 
-UI and database-backed editing screens are not part of this phase. Artisan commands are planned for a later developer-experience phase.
+## Optional Database Overrides
 
-## Phase 6 Optional Database Overrides
-
-Database SEO overrides are optional. The package works normally without the table, and it will not query the database unless both `features.database_overrides` and `database.enabled` are true.
-
-### Publishing And Running The Migration
+Publish and run the migration only when you want database-backed manual SEO overrides:
 
 ```bash
 php artisan vendor:publish --tag=zarbin-seo-migrations
 php artisan migrate
 ```
 
-### Enabling Database Overrides
+Enable both flags:
 
 ```php
 'features' => [
@@ -489,9 +345,7 @@ php artisan migrate
 ],
 ```
 
-If the feature is enabled before the migration is run, `ignore_missing_table` keeps normal SEO resolution working without crashing the app.
-
-### Model-Backed Page Overrides
+Save model overrides:
 
 ```php
 seo()->saveOverride($post, [
@@ -500,73 +354,21 @@ seo()->saveOverride($post, [
     'canonical' => 'https://example.com/custom-post',
     'robots' => ['index', 'follow'],
 ], 'fa');
-
-seo()->for($post, 'fa')->render();
 ```
 
-### Holder Page Overrides
-
-Holder models such as `ProductHolder`, `BlogHolder`, and `HomePage` use the same API:
-
-```php
-seo()->saveOverride($productHolder, [
-    'title' => 'Custom products title',
-    'schema_type' => 'CollectionPage',
-], 'en');
-```
-
-### Route-Only Page Overrides
+Save route overrides:
 
 ```php
 seo()->saveOverride('home', [
     'title' => 'Custom homepage title',
     'description' => 'Custom homepage description',
 ], 'en');
-
-seo()->route('home', [], 'en')->render();
 ```
 
-### Locale-Specific Overrides
-
-The locale is stored alongside the target, so each model or route can have separate manual SEO values per language:
+Eloquent models can use `HasSeoMeta`:
 
 ```php
-seo()->saveOverride($post, ['title' => 'عنوان فارسی'], 'fa');
-seo()->saveOverride($post, ['title' => 'English title'], 'en');
-```
-
-### Social Overrides
-
-Open Graph and Twitter/X card values can be stored in dedicated columns or developer-friendly nested arrays:
-
-```php
-seo()->saveOverride($post, [
-    'open_graph' => [
-        'title' => 'Custom share title',
-        'description' => 'Custom share description',
-        'image' => 'https://example.com/share.jpg',
-    ],
-    'twitter' => [
-        'title' => 'Custom X title',
-        'description' => 'Custom X description',
-        'image' => 'https://example.com/x.jpg',
-    ],
-    'schema_type' => 'Article',
-    'extra' => [
-        'editor_note' => 'Reviewed manually',
-    ],
-]);
-```
-
-### Optional Model Trait
-
-Eloquent models can use `HasSeoMeta` for local helpers:
-
-```php
-use Illuminate\Database\Eloquent\Model;
-use Zarbin\Seo\Concerns\HasSeo;
 use Zarbin\Seo\Concerns\HasSeoMeta;
-use Zarbin\Seo\Contracts\Seoable;
 
 class Post extends Model implements Seoable
 {
@@ -575,21 +377,11 @@ class Post extends Model implements Seoable
 }
 ```
 
-```php
-$post->saveSeoMeta(['title' => 'Manual SEO title'], 'fa');
-$post->seoMetaForLocale('fa');
-$post->deleteSeoMeta('fa');
-```
+The package still works normally when database overrides are disabled or the table is missing.
 
-Advanced UI workflows such as bulk editing and model discovery will be added in later phases.
+## Optional Plain Blade UI
 
-## Phase 7 Optional UI Layer
-
-Zarbin SEO includes an optional plain Blade UI for editing database-backed SEO overrides. It is disabled by default and does not depend on Livewire, Filament, Nova, Inertia, Tailwind, Bootstrap, or any admin panel stack.
-
-### Enabling UI
-
-Enable database overrides first, then opt into the UI:
+The UI is disabled by default. It edits database override records and has no Livewire, Filament, Nova, Inertia, Tailwind, or Bootstrap dependency.
 
 ```php
 'features' => [
@@ -610,68 +402,23 @@ Enable database overrides first, then opt into the UI:
 ],
 ```
 
-The UI route is active only when both `features.ui` and `ui.enabled` are true. The dedicated route UI also requires `ui.route_enabled`.
-
-### Dedicated Route UI
-
-The package can register a small route UI:
+Dedicated route UI:
 
 ```text
 GET /admin/seo
 GET /admin/seo/routes
-GET /admin/seo/routes/edit?route=home
 ```
 
-The route UI currently manages configured route-only overrides from `config('zarbin-seo.routes')`.
-
-### Gate And Middleware Protection
-
-Use normal Laravel middleware and gates:
-
-```php
-'ui' => [
-    'middleware' => ['web', 'auth'],
-    'gate' => 'viewZarbinSeo',
-],
-```
-
-When a gate is configured, access is denied with HTTP 403 unless `Gate::allows($gate)` returns true.
-
-### Embeddable Form Component
-
-Embed the form inside any existing admin screen:
+Embeddable form for your own admin panel:
 
 ```blade
 <x-zarbin-seo::form :source="$post" locale="fa" />
-```
-
-Use it for route-only pages too:
-
-```blade
 <x-zarbin-seo::form source="home" locale="en" action="{{ route('admin.seo.save') }}" standalone />
 ```
 
-Model and holder records are edited by embedding the form in your own admin panel. The package does not crawl models or provide a model list UI in this phase.
+## Product / Commerce Schema
 
-### Publishing Views
-
-```bash
-php artisan vendor:publish --tag=zarbin-seo-views
-```
-
-The UI and form views are intentionally plain Blade so they can be customized to match your existing admin area.
-
-### Database Requirement
-
-The UI edits manual override records, so it requires the Phase 6 migration and database override feature flags. If the UI is enabled before the table is ready, it shows a warning instead of crashing.
-
-## Phase 8 Product / Commerce Schema
-
-Zarbin SEO can add lightweight product and offer JSON-LD for product-like models without depending on an ecommerce package. Commerce data lives in `SeoData::extra['commerce']`, so database override `extra` JSON can also provide manual product values when needed.
-
-### Enabling Commerce Schema
-
-Commerce output is disabled by default:
+Commerce support is disabled by default and does not depend on WooCommerce, Cashier, Bagisto, Aimeos, Vanilo, Stripe, Paddle, or any ecommerce package.
 
 ```php
 'features' => [
@@ -688,9 +435,7 @@ Commerce output is disabled by default:
 ],
 ```
 
-### Model Config Mapping
-
-Map product fields from normal Laravel models:
+Model mapping:
 
 ```php
 'models' => [
@@ -714,15 +459,10 @@ Map product fields from normal Laravel models:
 ],
 ```
 
-### CommerceSeo Contract
-
-Models can provide product data directly:
+Contract-based product data:
 
 ```php
-use Illuminate\Database\Eloquent\Model;
-use Zarbin\Seo\Concerns\HasSeo;
 use Zarbin\Seo\Contracts\CommerceSeo;
-use Zarbin\Seo\Contracts\Seoable;
 use Zarbin\Seo\Data\CommerceData;
 
 class Product extends Model implements Seoable, CommerceSeo
@@ -743,37 +483,7 @@ class Product extends Model implements Seoable, CommerceSeo
 }
 ```
 
-### HasCommerceSeo Trait
-
-Use `HasCommerceSeo` when you prefer small overridable methods:
-
-```php
-use Zarbin\Seo\Concerns\HasCommerceSeo;
-
-class Product extends Model implements Seoable, CommerceSeo
-{
-    use HasSeo;
-    use HasCommerceSeo;
-
-    public function seoProductPrice(?string $locale = null): int|float|string|null
-    {
-        return $this->price;
-    }
-
-    public function seoProductAvailability(?string $locale = null): ?string
-    {
-        return $this->stock > 0 ? 'in_stock' : 'out_of_stock';
-    }
-}
-```
-
-### Locale-Aware Currency
-
-When a product does not provide a currency, Zarbin SEO can use `commerce.currency_per_locale` and then `commerce.default_currency`.
-
-### Manual Fluent Commerce Data
-
-You can attach product/offer data manually for the current request:
+Fluent commerce data:
 
 ```php
 seo()
@@ -786,23 +496,11 @@ seo()
     ->render();
 ```
 
-`product()` is an alias for `commerce()`.
+Product holder and listing pages should usually remain `CollectionPage`. ItemList schema may be added in a future phase.
 
-### ProductHolder / CollectionPage Note
+## Artisan Commands
 
-Holder and listing pages should usually remain `CollectionPage`. Zarbin SEO will not turn an explicit `CollectionPage` into `Product` unless the model commerce config sets `force_type` to `true`. ItemList schema for holder/listing pages can be added in a later phase.
-
-### Rendered JSON-LD Output
-
-When product commerce data is available, `seo()->jsonLd()` renders a Product schema with an Offer block when offer fields such as price, currency, availability, condition, or seller are present.
-
-This phase adds no ecommerce package dependency and no UI/database schema changes.
-
-## Developer Experience Commands
-
-Zarbin SEO includes safe Artisan commands for installing package resources, checking readiness, previewing resolved SEO data, and exporting generated sitemap or robots output.
-
-### Install
+Install:
 
 ```bash
 php artisan zarbin-seo:install
@@ -810,9 +508,7 @@ php artisan zarbin-seo:install --all
 php artisan zarbin-seo:install --migrations --run-migrations
 ```
 
-The install command publishes config by default. It does not run migrations unless `--run-migrations` is provided with `--migrations` or `--all`.
-
-### Doctor
+Doctor/readiness checks:
 
 ```bash
 php artisan zarbin-seo:doctor
@@ -820,9 +516,7 @@ php artisan zarbin-seo:doctor --strict
 php artisan zarbin-seo:doctor --json
 ```
 
-The doctor command checks package readiness, configuration, optional database/UI state, localization settings, sitemap/robots settings, and commerce settings. It is a readiness check, not SEO scoring or readability analysis.
-
-### Check
+Inspect resolved SEO data:
 
 ```bash
 php artisan zarbin-seo:check
@@ -831,46 +525,29 @@ php artisan zarbin-seo:check --route=home --locale=fa --render
 php artisan zarbin-seo:check --model="App\Models\Post" --id=1 --json
 ```
 
-The check command does not crawl models. It only queries a model when both `--model` and `--id` are explicitly provided.
-
-### Sitemap
+Export sitemap or robots output:
 
 ```bash
-php artisan zarbin-seo:sitemap
-php artisan zarbin-seo:sitemap --locale=fa
-php artisan zarbin-seo:sitemap --index
 php artisan zarbin-seo:sitemap --output=public/sitemap.xml
-php artisan zarbin-seo:sitemap --count
-```
-
-Without `--output`, XML is printed to the console. With `--dry-run`, the command reports what would happen and does not write files.
-
-### Robots
-
-```bash
-php artisan zarbin-seo:robots
 php artisan zarbin-seo:robots --output=public/robots.txt
 ```
 
-Without `--output`, robots.txt content is printed to the console. With `--dry-run`, the command does not write files.
+Commands are safe by default: no model crawling unless explicitly requested, no migrations unless `--run-migrations` is provided, and no file writes unless `--output` is provided.
 
-Commands are safe by default: no automatic database crawling, no queue jobs, no cache warmers, and no file writes unless an output path is explicitly provided.
+## Configuration Reference
 
-## Planned Direction
+Important config areas:
 
-Future versions are expected to build around Laravel-friendly primitives:
-
-```php
-$post->seoTitle();
-$post->seoDescription();
-
-seo()
-    ->title('Product title')
-    ->description('Concise search result description')
-    ->canonical(route('products.show', $product));
-```
-
-The long-term goal is to support model-aware metadata, Open Graph, Twitter cards, JSON-LD schema, sitemaps, robots.txt, breadcrumbs, and localization hooks while keeping all heavier pieces optional.
+- `defaults`: fallback title, description, image, separator, robots, and description limit.
+- `features`: toggle Open Graph, Twitter, schema, sitemap, robots.txt, alternates, database overrides, UI, and commerce.
+- `localization`: locales, default locale, route parameter, missing translation strategy, hreflang, and `x-default`.
+- `sitemap`: public route, paths, defaults, alternates, and cache placeholders.
+- `robots_txt`: public route, user-agent, allow/disallow, and sitemap lines.
+- `database`: optional override table/model settings.
+- `ui`: optional Blade UI route, middleware, gate, and preview settings.
+- `commerce`: default currency, locale currencies, availability map, and condition map.
+- `models`: model and holder mappings.
+- `routes`: route-only SEO mappings.
 
 ## Testing
 
@@ -878,6 +555,18 @@ The long-term goal is to support model-aware metadata, Open Graph, Twitter cards
 composer test
 composer format:test
 ```
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
+## Security
+
+If you discover a security issue, please open a private/security report through GitHub if enabled, or contact the maintainer through the repository.
+
+## Credits
+
+Zarbin / zarbinco
 
 ## License
 
