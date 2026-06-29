@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zarbin\Seo;
 
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Renderers\SeoRenderer;
 use Zarbin\Seo\Resolvers\SeoSourceResolver;
 use Zarbin\Seo\Support\Text;
 
@@ -156,6 +157,41 @@ final class ZarbinSeo
     public function resolver(): SeoSourceResolver
     {
         return new SeoSourceResolver;
+    }
+
+    public function renderer(): SeoRenderer
+    {
+        return new SeoRenderer;
+    }
+
+    public function render(bool $minify = false): string
+    {
+        return $this->renderer()->render($this->get(), $minify);
+    }
+
+    public function titleTag(): string
+    {
+        return $this->renderer()->title($this->get());
+    }
+
+    public function meta(): string
+    {
+        return $this->renderer()->meta($this->get());
+    }
+
+    public function openGraph(): string
+    {
+        return $this->renderer()->openGraph($this->get());
+    }
+
+    public function twitter(): string
+    {
+        return $this->renderer()->twitter($this->get());
+    }
+
+    public function jsonLd(): string
+    {
+        return $this->renderer()->jsonLd($this->get());
     }
 
     private function descriptionLimit(): int

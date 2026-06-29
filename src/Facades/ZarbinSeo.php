@@ -27,6 +27,13 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zarbin\Seo\ZarbinSeo route(string $routeName, array $parameters = [], ?string $locale = null)
  * @method static \Zarbin\Seo\Data\SeoData resolve(mixed $source = null, ?string $locale = null)
  * @method static \Zarbin\Seo\Resolvers\SeoSourceResolver resolver()
+ * @method static \Zarbin\Seo\Renderers\SeoRenderer renderer()
+ * @method static string render(bool $minify = false)
+ * @method static string titleTag()
+ * @method static string meta()
+ * @method static string openGraph()
+ * @method static string twitter()
+ * @method static string jsonLd()
  *
  * @see \Zarbin\Seo\ZarbinSeo
  */

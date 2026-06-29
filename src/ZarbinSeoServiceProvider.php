@@ -6,6 +6,7 @@ namespace Zarbin\Seo;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Zarbin\Seo\View\Components\Meta;
 
 final class ZarbinSeoServiceProvider extends PackageServiceProvider
 {
@@ -13,7 +14,9 @@ final class ZarbinSeoServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('zarbin-seo')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->hasViews('zarbin-seo')
+            ->hasViewComponent('zarbin-seo', Meta::class);
     }
 
     public function packageRegistered(): void

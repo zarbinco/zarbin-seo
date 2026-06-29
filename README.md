@@ -6,9 +6,9 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, and lightweight SEO data layer.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, and HTML rendering layer.
 
-The first phase intentionally does not include full HTML renderers, sitemap generation, UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations.
+The package intentionally does not include sitemap generation, UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations yet.
 
 ## Installation
 
@@ -92,7 +92,7 @@ final class Product implements Seoable
 }
 ```
 
-HTML rendering, sitemap generation, UI, and database overrides are planned for upcoming phases.
+Sitemap generation, UI, and database overrides are planned for upcoming phases.
 
 ## Phase 2 Source Resolution
 
@@ -191,7 +191,44 @@ $data = seo()->route('home')->get();
 
 Resolution starts with defaults and common attributes, then applies config mappings, then applies non-empty `Seoable::toSeoData()` values last. That means explicit model SEO methods beat config mappings, while config and defaults still fill any missing values.
 
-HTML rendering will be added in a later phase. Sitemap generation will be added in a later phase. Database overrides and UI are not part of this phase.
+## Phase 3 HTML Rendering
+
+Render the current SEO state directly inside your layout `<head>`:
+
+```blade
+{!! seo()->render() !!}
+```
+
+Or render individual segments when your layout needs tighter control:
+
+```blade
+{!! seo()->meta() !!}
+{!! seo()->openGraph() !!}
+{!! seo()->twitter() !!}
+{!! seo()->jsonLd() !!}
+```
+
+Use the Blade component when you prefer component syntax:
+
+```blade
+<x-zarbin-seo::meta />
+<x-zarbin-seo::meta :source="$post" />
+```
+
+In controllers or page actions, resolve the current page before returning the view:
+
+```php
+public function show(Post $post)
+{
+    seo()->for($post);
+
+    return view('posts.show', compact('post'));
+}
+```
+
+The renderer currently outputs title, meta description, canonical, robots, Open Graph, Twitter/X Card, and basic JSON-LD tags.
+
+Sitemap generation will be added in a later phase. Multilingual hreflang will be added in a later phase. Database overrides and UI are not part of this phase.
 
 ## Planned Direction
 

@@ -46,6 +46,11 @@ return [
         ],
     ],
 
+    'rendering' => [
+        'minify' => false,
+        'pretty_json' => false,
+    ],
+
     'ui' => [
         'enabled' => false,
         'mode' => 'disabled',
