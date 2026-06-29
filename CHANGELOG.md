@@ -9,6 +9,12 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added consumer Laravel app smoke/E2E script.
 - Added GitHub Actions E2E workflow for real package installation checks.
 - Added E2E documentation.
+- Added bulletproof hardening tests for optional database, routes, localization, rendering, sitemap/robots, commerce, UI, and commands.
+- Added hardening documentation.
+
+### Fixed
+
+- Guarded malformed localized URL route config and throwing sitemap generators from crashing SEO resolution.
 
 ## 0.1.0 - 2026-06-29
 

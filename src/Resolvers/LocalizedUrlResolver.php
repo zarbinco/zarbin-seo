@@ -33,7 +33,8 @@ final class LocalizedUrlResolver
             }
 
             $config = $this->modelConfig($source);
-            $localizedRoute = $config['localized_routes'][$locale] ?? null;
+            $localizedRoutes = is_array($config['localized_routes'] ?? null) ? $config['localized_routes'] : [];
+            $localizedRoute = $localizedRoutes[$locale] ?? null;
 
             if (is_string($localizedRoute)) {
                 $url = RouteUrl::make($localizedRoute, $this->routeParameters($source, $config, $locale, false));
@@ -65,13 +66,15 @@ final class LocalizedUrlResolver
     public function resolveForRoute(string $routeName, string $locale, array $parameters = []): ?string
     {
         $config = $this->routeConfig($routeName);
-        $localizedUrl = $config['localized_urls'][$locale] ?? null;
+        $localizedUrls = is_array($config['localized_urls'] ?? null) ? $config['localized_urls'] : [];
+        $localizedUrl = $localizedUrls[$locale] ?? null;
 
         if (is_string($localizedUrl) && trim($localizedUrl) !== '') {
             return trim($localizedUrl);
         }
 
-        $localizedRoute = $config['localized_routes'][$locale] ?? null;
+        $localizedRoutes = is_array($config['localized_routes'] ?? null) ? $config['localized_routes'] : [];
+        $localizedRoute = $localizedRoutes[$locale] ?? null;
 
         if (is_string($localizedRoute)) {
             $url = RouteUrl::make($localizedRoute, $this->routeParametersForConfig($config, $parameters, $locale, false));

@@ -135,16 +135,20 @@ final class SitemapGenerator
                 continue;
             }
 
-            foreach ($this->items($config, $locale) as $item) {
-                if ($locale !== null && ! $this->availability->isAvailable($item, $locale)) {
-                    continue;
-                }
+            try {
+                foreach ($this->items($config, $locale) as $item) {
+                    if ($locale !== null && ! $this->availability->isAvailable($item, $locale)) {
+                        continue;
+                    }
 
-                $url = $this->resolver->fromSource($item, $locale);
+                    $url = $this->resolver->fromSource($item, $locale);
 
-                if ($url !== null) {
-                    $urls[] = $url;
+                    if ($url !== null) {
+                        $urls[] = $url;
+                    }
                 }
+            } catch (Throwable) {
+                continue;
             }
         }
 

@@ -566,6 +566,10 @@ php scripts/e2e-consumer-app.php
 
 The script creates a temporary Laravel app, installs this package through a Composer path repository, and verifies package discovery, publish tags, commands, sitemap/robots routes, and Blade rendering. See [docs/e2e.md](docs/e2e.md).
 
+## Hardening / Bulletproof Tests
+
+The test suite includes bulletproof coverage for broken config, disabled features, missing database tables, invalid routes, malformed localization, UI/database mismatch, commerce edge cases, and rendering safety. See [docs/hardening.md](docs/hardening.md).
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
