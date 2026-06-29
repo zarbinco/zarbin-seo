@@ -13,7 +13,7 @@ It is inspired by common SEO editorial workflows and concepts popularized by too
 
 ## Development Status
 
-Pre-release / v0.1.0 candidate. The package is ready for early testing, but the public API may still evolve before a stable release.
+Pre-release / v0.1.x. The package is ready for early testing, but the public API may still evolve before a stable release.
 
 ## Documentation
 

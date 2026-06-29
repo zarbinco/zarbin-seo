@@ -2,7 +2,7 @@
 
 All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
-## 0.1.1 - Unreleased
+## 0.1.1 - 2026-06-29
 
 ### Added
 
