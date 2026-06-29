@@ -94,6 +94,105 @@ final class Product implements Seoable
 
 HTML rendering, sitemap generation, UI, and database overrides are planned for upcoming phases.
 
+## Phase 2 Source Resolution
+
+Zarbin SEO can now resolve `SeoData` from models, model-backed holder pages, route-only pages, raw arrays, existing `SeoData` objects, and defaults.
+
+### Resolving SEO From A Model
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Contracts\Seoable;
+
+class Post extends Model implements Seoable
+{
+    use HasSeo;
+
+    public function seoTitle(?string $locale = null): ?string
+    {
+        return $this->title;
+    }
+
+    public function seoDescription(?string $locale = null): ?string
+    {
+        return $this->excerpt;
+    }
+}
+
+$data = seo()->for($post)->get();
+```
+
+### Resolving SEO From A Model-Backed Holder
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Zarbin\Seo\Concerns\HasSeo;
+use Zarbin\Seo\Contracts\Seoable;
+
+class ProductHolder extends Model implements Seoable
+{
+    use HasSeo;
+
+    public function seoTitle(?string $locale = null): ?string
+    {
+        return $this->title ?: 'Products';
+    }
+
+    public function seoType(?string $locale = null): ?string
+    {
+        return 'CollectionPage';
+    }
+}
+
+$data = seo()->for($productHolder)->get();
+```
+
+### Resolving SEO From A Route-Only Page
+
+```php
+$data = seo()->route('home')->get();
+```
+
+### Configuring Model Mappings
+
+```php
+'models' => [
+    Product::class => [
+        'title' => 'name',
+        'description' => ['excerpt', 'description', 'content'],
+        'image' => ['image_url', 'cover_image_url'],
+        'route' => 'products.show',
+        'route_key' => 'slug',
+        'type' => 'Product',
+    ],
+],
+```
+
+### Configuring Route Mappings
+
+```php
+'routes' => [
+    'home' => [
+        'title' => 'Home',
+        'description' => 'Welcome to our website',
+        'schema' => 'WebPage',
+        'sitemap' => true,
+    ],
+    'products.index' => [
+        'title' => 'Products',
+        'description' => 'Browse our products',
+        'schema' => 'CollectionPage',
+    ],
+],
+```
+
+### Resolver Priority
+
+Resolution starts with defaults and common attributes, then applies config mappings, then applies non-empty `Seoable::toSeoData()` values last. That means explicit model SEO methods beat config mappings, while config and defaults still fill any missing values.
+
+HTML rendering will be added in a later phase. Sitemap generation will be added in a later phase. Database overrides and UI are not part of this phase.
+
 ## Planned Direction
 
 Future versions are expected to build around Laravel-friendly primitives:

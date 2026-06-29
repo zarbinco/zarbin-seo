@@ -23,6 +23,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Zarbin\Seo\ZarbinSeo siteName(?string $siteName)
  * @method static \Zarbin\Seo\ZarbinSeo separator(?string $separator)
  * @method static \Zarbin\Seo\ZarbinSeo extra(array $extra)
+ * @method static \Zarbin\Seo\ZarbinSeo for(mixed $source, ?string $locale = null)
+ * @method static \Zarbin\Seo\ZarbinSeo route(string $routeName, array $parameters = [], ?string $locale = null)
+ * @method static \Zarbin\Seo\Data\SeoData resolve(mixed $source = null, ?string $locale = null)
+ * @method static \Zarbin\Seo\Resolvers\SeoSourceResolver resolver()
  *
  * @see \Zarbin\Seo\ZarbinSeo
  */

@@ -59,7 +59,11 @@ return [
         ],
     ],
 
-    'models' => [],
+    'models' => [
+        // Model and model-backed holder mappings may be registered by class name.
+    ],
 
-    'routes' => [],
+    'routes' => [
+        // Route-only page mappings may be registered by route name.
+    ],
 ];

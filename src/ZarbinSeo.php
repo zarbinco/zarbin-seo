@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zarbin\Seo;
 
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Resolvers\SeoSourceResolver;
 use Zarbin\Seo\Support\Text;
 
 final class ZarbinSeo
@@ -128,6 +129,33 @@ final class ZarbinSeo
     public function extra(array $extra): self
     {
         return $this->set(['extra' => $extra]);
+    }
+
+    public function for(mixed $source, ?string $locale = null): self
+    {
+        $this->data = $this->resolve($source, $locale);
+
+        return $this;
+    }
+
+    /**
+     * @param  array<int|string, mixed>  $parameters
+     */
+    public function route(string $routeName, array $parameters = [], ?string $locale = null): self
+    {
+        $this->data = $this->resolver()->route($routeName, $parameters, $locale);
+
+        return $this;
+    }
+
+    public function resolve(mixed $source = null, ?string $locale = null): SeoData
+    {
+        return $this->resolver()->resolve($source, $locale);
+    }
+
+    public function resolver(): SeoSourceResolver
+    {
+        return new SeoSourceResolver;
     }
 
     private function descriptionLimit(): int
