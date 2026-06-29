@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Zarbin\Seo;
 
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Data\SitemapUrl;
+use Zarbin\Seo\Generators\RobotsTxtGenerator;
+use Zarbin\Seo\Generators\SitemapGenerator;
 use Zarbin\Seo\Renderers\SeoRenderer;
 use Zarbin\Seo\Resolvers\SeoSourceResolver;
 use Zarbin\Seo\Support\Text;
@@ -211,6 +214,29 @@ final class ZarbinSeo
     public function alternates(): string
     {
         return $this->renderer()->alternateLanguages($this->get());
+    }
+
+    public function sitemap(?string $locale = null): string
+    {
+        return (new SitemapGenerator)->render($locale);
+    }
+
+    /**
+     * @return array<int, SitemapUrl>
+     */
+    public function sitemapUrls(?string $locale = null): array
+    {
+        return (new SitemapGenerator)->urls($locale);
+    }
+
+    public function sitemapIndex(): string
+    {
+        return (new SitemapGenerator)->renderIndex();
+    }
+
+    public function robotsTxt(): string
+    {
+        return (new RobotsTxtGenerator)->render();
     }
 
     private function descriptionLimit(): int

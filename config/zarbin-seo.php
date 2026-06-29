@@ -37,14 +37,28 @@ return [
 
     'sitemap' => [
         'enabled' => true,
+        'route_enabled' => true,
+        'path' => 'sitemap.xml',
+        'index_path' => 'sitemap_index.xml',
+        'include_alternates' => true,
         'defaults' => [
             'priority' => 0.5,
             'change_frequency' => 'weekly',
         ],
         'cache' => [
-            'enabled' => true,
+            'enabled' => false,
             'ttl' => 3600,
         ],
+    ],
+
+    'robots_txt' => [
+        'enabled' => true,
+        'route_enabled' => true,
+        'path' => 'robots.txt',
+        'user_agent' => '*',
+        'allow' => [],
+        'disallow' => [],
+        'sitemaps' => [],
     ],
 
     'rendering' => [

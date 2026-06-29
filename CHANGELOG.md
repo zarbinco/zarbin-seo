@@ -14,3 +14,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added hreflang alternate link rendering.
 - Added missing translation strategies for hide, fallback, and noindex.
 - Added optional LocalizableSeo contract.
+- Added sitemap URL data object.
+- Added route, model, holder, and multilingual sitemap generation.
+- Added sitemap XML and sitemap index rendering.
+- Added robots.txt generation.
+- Added optional public sitemap and robots routes.
+- Added optional Sitemapable contract.

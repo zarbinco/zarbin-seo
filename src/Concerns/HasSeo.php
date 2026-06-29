@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo\Concerns;
 
+use DateTimeInterface;
 use Zarbin\Seo\Data\SeoData;
+use Zarbin\Seo\Support\AttributeReader;
 use Zarbin\Seo\Support\LocaleHelper;
 
 trait HasSeo
@@ -94,5 +96,37 @@ trait HasSeo
     public function seoUrlForLocale(string $locale): ?string
     {
         return $this->seoCanonicalUrl($locale);
+    }
+
+    public function shouldBeInSitemap(?string $locale = null): bool
+    {
+        return true;
+    }
+
+    public function sitemapUrl(?string $locale = null): ?string
+    {
+        return $this->seoCanonicalUrl($locale);
+    }
+
+    public function sitemapUrlForLocale(string $locale): ?string
+    {
+        return $this->sitemapUrl($locale) ?? $this->seoUrlForLocale($locale);
+    }
+
+    public function sitemapPriority(?string $locale = null): float|int|null
+    {
+        return null;
+    }
+
+    public function sitemapChangeFrequency(?string $locale = null): ?string
+    {
+        return null;
+    }
+
+    public function sitemapLastModified(?string $locale = null): DateTimeInterface|string|null
+    {
+        $updatedAt = AttributeReader::get($this, 'updated_at');
+
+        return $updatedAt instanceof DateTimeInterface || is_string($updatedAt) ? $updatedAt : null;
     }
 }

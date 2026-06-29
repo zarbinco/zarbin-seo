@@ -15,6 +15,7 @@ final class ZarbinSeoServiceProvider extends PackageServiceProvider
         $package
             ->name('zarbin-seo')
             ->hasConfigFile()
+            ->hasRoute('zarbin-seo')
             ->hasViews('zarbin-seo')
             ->hasViewComponent('zarbin-seo', Meta::class);
     }

@@ -113,6 +113,12 @@ final class LocalizedUrlResolver
      */
     private function routeConfig(string $routeName): array
     {
+        $routes = $this->config('zarbin-seo.routes', []);
+
+        if (is_array($routes) && isset($routes[$routeName]) && is_array($routes[$routeName])) {
+            return $routes[$routeName];
+        }
+
         $config = $this->config('zarbin-seo.routes.'.$routeName, []);
 
         return is_array($config) ? $config : [];

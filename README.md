@@ -6,9 +6,9 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, and HTML rendering layer.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, and sitemap/robots.txt generation.
 
-The package intentionally does not include sitemap generation, UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations yet.
+The package intentionally does not include UI, database overrides, analytics, AI, Search Console integrations, or external SEO service integrations yet.
 
 ## Installation
 
@@ -92,7 +92,7 @@ final class Product implements Seoable
 }
 ```
 
-Sitemap generation, UI, and database overrides are planned for upcoming phases.
+UI and database overrides are planned for upcoming phases.
 
 ## Phase 2 Source Resolution
 
@@ -228,7 +228,7 @@ public function show(Post $post)
 
 The renderer currently outputs title, meta description, canonical, robots, hreflang alternate links, Open Graph, Twitter/X Card, and basic JSON-LD tags.
 
-Sitemap generation will be added in a later phase. Database overrides and UI are not part of this phase.
+Database overrides and UI are not part of this phase.
 
 ## Phase 4 Multilingual SEO
 
@@ -332,7 +332,139 @@ You can also render only alternates:
 
 `x_default` can be a locale code, an explicit URL, or `true` to use the default locale URL when available.
 
-Sitemap multilingual output will be added in the sitemap phase. Database overrides and UI are not part of this phase.
+Database overrides and UI are not part of this phase.
+
+## Phase 5 Sitemap And Robots.txt
+
+Zarbin SEO can generate lightweight XML sitemaps and robots.txt output from route mappings, model-backed pages, and holder pages.
+
+### Sitemap Generation
+
+Render the sitemap directly:
+
+```php
+seo()->sitemap();
+seo()->sitemapIndex();
+seo()->robotsTxt();
+```
+
+The package also registers public routes when enabled:
+
+```text
+/sitemap.xml
+/sitemap_index.xml
+/robots.txt
+```
+
+### Route-Only Sitemap Entries
+
+```php
+'routes' => [
+    'home' => [
+        'title' => 'Home',
+        'canonical' => 'https://example.com',
+        'sitemap' => true,
+        'priority' => 1.0,
+        'change_frequency' => 'daily',
+    ],
+],
+```
+
+### Model-Backed Sitemap Entries
+
+```php
+'models' => [
+    App\Models\Post::class => [
+        'route' => 'posts.show',
+        'route_key' => 'slug',
+        'sitemap' => true,
+        'sitemap_source' => fn () => App\Models\Post::query()
+            ->where('published', true)
+            ->cursor(),
+        'priority' => 0.7,
+        'change_frequency' => 'weekly',
+    ],
+],
+```
+
+### Holder Page Sitemap Entries
+
+Holder pages such as `ProductHolder`, `BlogHolder`, or `HomePage` can be returned from `sitemap_items` or `sitemap_source` the same way as normal models:
+
+```php
+'models' => [
+    App\Models\ProductHolder::class => [
+        'sitemap' => true,
+        'sitemap_items' => [app(App\Models\ProductHolder::class)],
+        'priority' => 0.9,
+        'change_frequency' => 'daily',
+    ],
+],
+```
+
+### Multilingual Sitemap Output
+
+When localization is enabled, sitemap generation can emit one URL per configured locale and include alternate language links where URLs are available:
+
+```php
+seo()->sitemap('fa');
+seo()->sitemap('en');
+seo()->sitemap(); // all configured locales
+```
+
+### Model Sitemap Methods
+
+Models may implement the optional `Sitemapable` contract, or simply expose matching methods:
+
+```php
+public function shouldBeInSitemap(?string $locale = null): bool
+{
+    return $this->published;
+}
+
+public function sitemapUrl(?string $locale = null): ?string
+{
+    return route('posts.show', $this->slug);
+}
+
+public function sitemapUrlForLocale(string $locale): ?string
+{
+    return route('posts.show', ['locale' => $locale, 'post' => $this->slug]);
+}
+
+public function sitemapPriority(?string $locale = null): float
+{
+    return $this->is_featured ? 0.9 : 0.6;
+}
+
+public function sitemapChangeFrequency(?string $locale = null): string
+{
+    return 'weekly';
+}
+
+public function sitemapLastModified(?string $locale = null): mixed
+{
+    return $this->updated_at;
+}
+```
+
+### Robots.txt Generation
+
+```php
+'robots_txt' => [
+    'enabled' => true,
+    'route_enabled' => true,
+    'path' => 'robots.txt',
+    'user_agent' => '*',
+    'allow' => ['/'],
+    'disallow' => ['/admin'],
+    'sitemaps' => [],
+],
+```
+
+When no sitemap URL is configured, robots.txt will point to the generated sitemap index when possible.
+
+Database overrides and UI are not part of this phase. Artisan commands are planned for a later developer-experience phase.
 
 ## Planned Direction
 

@@ -37,6 +37,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static string twitter()
  * @method static string jsonLd()
  * @method static string alternates()
+ * @method static string sitemap(?string $locale = null)
+ * @method static array<int, \Zarbin\Seo\Data\SitemapUrl> sitemapUrls(?string $locale = null)
+ * @method static string sitemapIndex()
+ * @method static string robotsTxt()
  *
  * @see \Zarbin\Seo\ZarbinSeo
  */
