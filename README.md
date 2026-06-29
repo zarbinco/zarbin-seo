@@ -556,6 +556,16 @@ composer test
 composer format:test
 ```
 
+## Consumer App Smoke Test
+
+Before releasing a new tag, you can run a real Laravel consumer-app smoke test:
+
+```bash
+php scripts/e2e-consumer-app.php
+```
+
+The script creates a temporary Laravel app, installs this package through a Composer path repository, and verifies package discovery, publish tags, commands, sitemap/robots routes, and Blade rendering. See [docs/e2e.md](docs/e2e.md).
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).

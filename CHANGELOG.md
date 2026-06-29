@@ -2,6 +2,14 @@
 
 All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
+## 0.1.1 - Unreleased
+
+### Added
+
+- Added consumer Laravel app smoke/E2E script.
+- Added GitHub Actions E2E workflow for real package installation checks.
+- Added E2E documentation.
+
 ## 0.1.0 - 2026-06-29
 
 ### Added

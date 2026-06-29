@@ -1,0 +1,39 @@
+name: Consumer App E2E
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  consumer-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.2', '8.3']
+
+    name: PHP ${{ matrix.php-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ctype, fileinfo, json, mbstring, openssl, pdo_sqlite, sqlite3, tokenizer, xml
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Run consumer app E2E
+        run: php scripts/e2e-consumer-app.php --laravel=^12.0
+
