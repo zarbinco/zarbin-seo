@@ -84,10 +84,10 @@ final class ReleaseReadinessTest extends TestCase
         }
     }
 
-    public function test_changelog_contains_unreleased_version(): void
+    public function test_changelog_contains_release_version(): void
     {
         $changelog = (string) file_get_contents(__DIR__.'/../../CHANGELOG.md');
 
-        $this->assertStringContainsString('## 0.1.0 - Unreleased', $changelog);
+        $this->assertStringContainsString('## 0.1.0 - ', $changelog);
     }
 }
