@@ -26,3 +26,8 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added HasSeoMeta trait.
 - Added route and model override APIs.
 - Added social override support for Open Graph and Twitter cards.
+- Added optional route-based SEO UI.
+- Added embeddable Blade SEO form component.
+- Added publishable package views for UI/forms.
+- Added UI authorization gate support.
+- Added database readiness warnings for UI.

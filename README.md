@@ -92,7 +92,7 @@ final class Product implements Seoable
 }
 ```
 
-UI for editing SEO metadata is planned for an upcoming phase.
+Advanced admin editing workflows are planned for future phases.
 
 ## Phase 2 Source Resolution
 
@@ -581,7 +581,89 @@ $post->seoMetaForLocale('fa');
 $post->deleteSeoMeta('fa');
 ```
 
-UI for editing SEO overrides will be added in a later phase.
+Advanced UI workflows such as bulk editing and model discovery will be added in later phases.
+
+## Phase 7 Optional UI Layer
+
+Zarbin SEO includes an optional plain Blade UI for editing database-backed SEO overrides. It is disabled by default and does not depend on Livewire, Filament, Nova, Inertia, Tailwind, Bootstrap, or any admin panel stack.
+
+### Enabling UI
+
+Enable database overrides first, then opt into the UI:
+
+```php
+'features' => [
+    'database_overrides' => true,
+    'ui' => true,
+],
+
+'database' => [
+    'enabled' => true,
+],
+
+'ui' => [
+    'enabled' => true,
+    'route_enabled' => true,
+    'path' => 'admin/seo',
+    'middleware' => ['web', 'auth'],
+    'gate' => 'viewZarbinSeo',
+],
+```
+
+The UI route is active only when both `features.ui` and `ui.enabled` are true. The dedicated route UI also requires `ui.route_enabled`.
+
+### Dedicated Route UI
+
+The package can register a small route UI:
+
+```text
+GET /admin/seo
+GET /admin/seo/routes
+GET /admin/seo/routes/edit?route=home
+```
+
+The route UI currently manages configured route-only overrides from `config('zarbin-seo.routes')`.
+
+### Gate And Middleware Protection
+
+Use normal Laravel middleware and gates:
+
+```php
+'ui' => [
+    'middleware' => ['web', 'auth'],
+    'gate' => 'viewZarbinSeo',
+],
+```
+
+When a gate is configured, access is denied with HTTP 403 unless `Gate::allows($gate)` returns true.
+
+### Embeddable Form Component
+
+Embed the form inside any existing admin screen:
+
+```blade
+<x-zarbin-seo::form :source="$post" locale="fa" />
+```
+
+Use it for route-only pages too:
+
+```blade
+<x-zarbin-seo::form source="home" locale="en" action="{{ route('admin.seo.save') }}" standalone />
+```
+
+Model and holder records are edited by embedding the form in your own admin panel. The package does not crawl models or provide a model list UI in this phase.
+
+### Publishing Views
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-views
+```
+
+The UI and form views are intentionally plain Blade so they can be customized to match your existing admin area.
+
+### Database Requirement
+
+The UI edits manual override records, so it requires the Phase 6 migration and database override feature flags. If the UI is enabled before the table is ready, it shows a warning instead of crashing.
 
 ## Planned Direction
 

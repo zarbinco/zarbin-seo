@@ -6,6 +6,7 @@ namespace Zarbin\Seo;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Zarbin\Seo\View\Components\Form;
 use Zarbin\Seo\View\Components\Meta;
 
 final class ZarbinSeoServiceProvider extends PackageServiceProvider
@@ -17,8 +18,9 @@ final class ZarbinSeoServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasMigration('create_zarbin_seo_meta_table')
             ->hasRoute('zarbin-seo')
+            ->hasRoute('zarbin-seo-ui')
             ->hasViews('zarbin-seo')
-            ->hasViewComponent('zarbin-seo', Meta::class);
+            ->hasViewComponents('zarbin-seo', Meta::class, Form::class);
     }
 
     public function packageRegistered(): void

@@ -1,0 +1,97 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zarbin\Seo\Tests\Feature;
+
+use Illuminate\Support\Facades\Blade;
+use Zarbin\Seo\Repositories\SeoMetaRepository;
+use Zarbin\Seo\Tests\Concerns\CreatesSeoMetaTable;
+use Zarbin\Seo\Tests\TestCase;
+
+final class FormComponentTest extends TestCase
+{
+    use CreatesSeoMetaTable;
+
+    public function test_form_component_renders_expected_fields(): void
+    {
+        $html = Blade::render('<x-zarbin-seo::form :source="$model" locale="fa" />', [
+            'model' => new FormComponentModel('1'),
+        ]);
+
+        $this->assertStringContainsString('name="seo[title]"', $html);
+        $this->assertStringContainsString('name="seo[description]"', $html);
+        $this->assertStringContainsString('name="seo[canonical]"', $html);
+        $this->assertStringContainsString('name="seo[robots]"', $html);
+    }
+
+    public function test_form_component_shows_resolved_values(): void
+    {
+        $model = new FormComponentModel('1');
+        $model->title = 'Resolved title';
+
+        $html = Blade::render('<x-zarbin-seo::form :source="$model" />', [
+            'model' => $model,
+        ]);
+
+        $this->assertStringContainsString('value="Resolved title"', $html);
+    }
+
+    public function test_form_component_loads_database_override_values_when_available(): void
+    {
+        $this->enableSeoMetaDatabase();
+        $this->createSeoMetaTable();
+        $model = new FormComponentModel('1');
+
+        (new SeoMetaRepository)->saveForSource($model, [
+            'title' => 'Override title',
+        ], 'fa');
+
+        $html = Blade::render('<x-zarbin-seo::form :source="$model" locale="fa" />', [
+            'model' => $model,
+        ]);
+
+        $this->assertStringContainsString('value="Override title"', $html);
+    }
+
+    public function test_source_as_route_string_works(): void
+    {
+        config()->set('zarbin-seo.routes', [
+            'home' => [
+                'title' => 'Home title',
+            ],
+        ]);
+
+        $html = Blade::render('<x-zarbin-seo::form source="home" locale="en" />');
+
+        $this->assertStringContainsString('name="route" value="home"', $html);
+        $this->assertStringContainsString('value="Home title"', $html);
+    }
+
+    public function test_standalone_form_renders_form_element(): void
+    {
+        $html = Blade::render('<x-zarbin-seo::form source="home" action="/save-seo" standalone />');
+
+        $this->assertStringContainsString('<form method="POST" action="/save-seo">', $html);
+    }
+
+    public function test_non_standalone_form_renders_fields_without_parent_form(): void
+    {
+        $html = Blade::render('<x-zarbin-seo::form source="home" />');
+
+        $this->assertStringNotContainsString('<form method=', $html);
+        $this->assertStringContainsString('<fieldset', $html);
+    }
+}
+
+final class FormComponentModel
+{
+    public string $title = 'Model title';
+
+    public function __construct(private readonly string $key) {}
+
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+}
