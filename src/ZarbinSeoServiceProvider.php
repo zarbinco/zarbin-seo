@@ -6,6 +6,11 @@ namespace Zarbin\Seo;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Zarbin\Seo\Console\Commands\CheckCommand;
+use Zarbin\Seo\Console\Commands\DoctorCommand;
+use Zarbin\Seo\Console\Commands\InstallCommand;
+use Zarbin\Seo\Console\Commands\RobotsCommand;
+use Zarbin\Seo\Console\Commands\SitemapCommand;
 use Zarbin\Seo\View\Components\Form;
 use Zarbin\Seo\View\Components\Meta;
 
@@ -20,7 +25,14 @@ final class ZarbinSeoServiceProvider extends PackageServiceProvider
             ->hasRoute('zarbin-seo')
             ->hasRoute('zarbin-seo-ui')
             ->hasViews('zarbin-seo')
-            ->hasViewComponents('zarbin-seo', Meta::class, Form::class);
+            ->hasViewComponents('zarbin-seo', Meta::class, Form::class)
+            ->hasCommands([
+                InstallCommand::class,
+                DoctorCommand::class,
+                CheckCommand::class,
+                SitemapCommand::class,
+                RobotsCommand::class,
+            ]);
     }
 
     public function packageRegistered(): void

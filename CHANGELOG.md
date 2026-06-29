@@ -37,3 +37,8 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 - Added Product JSON-LD and Offer schema support.
 - Added locale-aware currency support.
 - Added fluent commerce/product manager methods.
+- Added install command.
+- Added doctor/readiness command.
+- Added route/model SEO check command.
+- Added sitemap preview/export command.
+- Added robots.txt preview/export command.

@@ -6,7 +6,7 @@ The package is inspired by common SEO editorial workflows and concepts populariz
 
 ## Development Status
 
-Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, optional database SEO overrides, optional plain Blade UI, and product/commerce schema support.
+Pre-release. This repository currently contains the package skeleton, configuration foundation, lightweight SEO data layer, source resolvers, HTML rendering layer, multilingual hreflang support, sitemap/robots.txt generation, optional database SEO overrides, optional plain Blade UI, product/commerce schema support, and Artisan developer-experience commands.
 
 The optional plain Blade UI is disabled by default. The package still intentionally does not include analytics, AI, Search Console integrations, or external SEO service integrations.
 
@@ -797,6 +797,64 @@ Holder and listing pages should usually remain `CollectionPage`. Zarbin SEO will
 When product commerce data is available, `seo()->jsonLd()` renders a Product schema with an Offer block when offer fields such as price, currency, availability, condition, or seller are present.
 
 This phase adds no ecommerce package dependency and no UI/database schema changes.
+
+## Developer Experience Commands
+
+Zarbin SEO includes safe Artisan commands for installing package resources, checking readiness, previewing resolved SEO data, and exporting generated sitemap or robots output.
+
+### Install
+
+```bash
+php artisan zarbin-seo:install
+php artisan zarbin-seo:install --all
+php artisan zarbin-seo:install --migrations --run-migrations
+```
+
+The install command publishes config by default. It does not run migrations unless `--run-migrations` is provided with `--migrations` or `--all`.
+
+### Doctor
+
+```bash
+php artisan zarbin-seo:doctor
+php artisan zarbin-seo:doctor --strict
+php artisan zarbin-seo:doctor --json
+```
+
+The doctor command checks package readiness, configuration, optional database/UI state, localization settings, sitemap/robots settings, and commerce settings. It is a readiness check, not SEO scoring or readability analysis.
+
+### Check
+
+```bash
+php artisan zarbin-seo:check
+php artisan zarbin-seo:check --route=home
+php artisan zarbin-seo:check --route=home --locale=fa --render
+php artisan zarbin-seo:check --model="App\Models\Post" --id=1 --json
+```
+
+The check command does not crawl models. It only queries a model when both `--model` and `--id` are explicitly provided.
+
+### Sitemap
+
+```bash
+php artisan zarbin-seo:sitemap
+php artisan zarbin-seo:sitemap --locale=fa
+php artisan zarbin-seo:sitemap --index
+php artisan zarbin-seo:sitemap --output=public/sitemap.xml
+php artisan zarbin-seo:sitemap --count
+```
+
+Without `--output`, XML is printed to the console. With `--dry-run`, the command reports what would happen and does not write files.
+
+### Robots
+
+```bash
+php artisan zarbin-seo:robots
+php artisan zarbin-seo:robots --output=public/robots.txt
+```
+
+Without `--output`, robots.txt content is printed to the console. With `--dry-run`, the command does not write files.
+
+Commands are safe by default: no automatic database crawling, no queue jobs, no cache warmers, and no file writes unless an output path is explicitly provided.
 
 ## Planned Direction
 
