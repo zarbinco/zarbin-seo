@@ -88,6 +88,8 @@ final class ReleaseReadinessTest extends TestCase
     {
         $changelog = (string) file_get_contents(__DIR__.'/../../CHANGELOG.md');
 
+        $this->assertStringContainsString('## 0.2.0 - Unreleased', $changelog);
+        $this->assertStringContainsString('## 0.1.1 - ', $changelog);
         $this->assertStringContainsString('## 0.1.0 - ', $changelog);
     }
 }

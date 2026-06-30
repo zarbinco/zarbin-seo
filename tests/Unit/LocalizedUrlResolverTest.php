@@ -39,6 +39,16 @@ final class LocalizedUrlResolverTest extends TestCase
         $this->assertStringEndsWith('/fa/posts/hello', $this->resolver()->resolveForSource($source, 'fa'));
     }
 
+    public function test_model_localized_urls_config_is_used_before_routes(): void
+    {
+        config()->set('zarbin-seo.models.'.UrlPlainSource::class, [
+            'localized_urls' => ['fa' => 'https://example.com/fa/explicit'],
+            'route' => 'missing.route',
+        ]);
+
+        $this->assertSame('https://example.com/fa/explicit', $this->resolver()->resolveForSource(new UrlPlainSource, 'fa'));
+    }
+
     public function test_route_parameter_config_can_generate_localized_route_url(): void
     {
         Route::get('/{locale}/posts/{post}', fn (string $locale, string $post): string => $post)->name('posts.show');
@@ -69,9 +79,74 @@ final class LocalizedUrlResolverTest extends TestCase
         $this->assertStringEndsWith('/fa', $this->resolver()->resolveForRoute('home', 'fa'));
     }
 
+    public function test_default_without_prefix_strategy_generates_default_and_localized_urls(): void
+    {
+        Route::get('/products', fn (): string => 'products')->name('strategy.default.products');
+        Route::get('/fa/products', fn (): string => 'fa products')->name('strategy.fa.products');
+        $this->configureStrategy('default_without_prefix', 'en');
+        config()->set('zarbin-seo.localization.route_parameter', 'locale');
+        config()->set('zarbin-seo.routes.strategy.default.products', [
+            'localized_routes' => [
+                'fa' => 'strategy.fa.products',
+            ],
+        ]);
+
+        $this->assertStringEndsWith('/products', $this->resolver()->resolveForRoute('strategy.default.products', 'en'));
+        $this->assertStringEndsWith('/fa/products', $this->resolver()->resolveForRoute('strategy.default.products', 'fa'));
+    }
+
+    public function test_prefixed_all_strategy_generates_urls_for_all_locales(): void
+    {
+        Route::get('/{locale}/about', fn (string $locale): string => $locale)->name('strategy.prefixed.about');
+        $this->configureStrategy('prefixed_all', 'en');
+        config()->set('zarbin-seo.localization.route_parameter', 'locale');
+
+        $this->assertStringEndsWith('/en/about', $this->resolver()->resolveForRoute('strategy.prefixed.about', 'en'));
+        $this->assertStringEndsWith('/fa/about', $this->resolver()->resolveForRoute('strategy.prefixed.about', 'fa'));
+    }
+
+    public function test_custom_strategy_relies_on_explicit_localized_mappings(): void
+    {
+        Route::get('/en/custom-about', fn (): string => 'en')->name('strategy.en.custom.about');
+        $this->configureStrategy('custom', 'en');
+        config()->set('zarbin-seo.routes.strategy.custom.about', [
+            'localized_urls' => [
+                'fa' => 'https://example.com/fa/custom-about',
+            ],
+            'localized_routes' => [
+                'en' => 'strategy.en.custom.about',
+            ],
+        ]);
+
+        $this->assertSame('https://example.com/fa/custom-about', $this->resolver()->resolveForRoute('strategy.custom.about', 'fa'));
+        $this->assertStringEndsWith('/en/custom-about', $this->resolver()->resolveForRoute('strategy.custom.about', 'en'));
+    }
+
+    public function test_generated_route_urls_do_not_return_duplicate_locale_prefixes(): void
+    {
+        Route::get('/en/{locale}/about', fn (string $locale): string => $locale)->name('strategy.duplicate.about');
+        $this->configureStrategy('prefixed_all', 'en');
+        config()->set('zarbin-seo.localization.route_parameter', 'locale');
+
+        $this->assertStringContainsString('/en/fa/about', route('strategy.duplicate.about', ['locale' => 'fa']));
+
+        $url = $this->resolver()->resolveForRoute('strategy.duplicate.about', 'fa');
+
+        $this->assertNull($url);
+        $this->assertStringNotContainsString('/en/fa/', (string) $url);
+    }
+
     public function test_failures_do_not_throw(): void
     {
         $this->assertNull($this->resolver()->resolveForRoute('missing.route', 'fa'));
+    }
+
+    private function configureStrategy(string $strategy, string $defaultLocale): void
+    {
+        config()->set('zarbin-seo.localization.enabled', true);
+        config()->set('zarbin-seo.localization.locales', ['en', 'fa']);
+        config()->set('zarbin-seo.localization.default_locale', $defaultLocale);
+        config()->set('zarbin-seo.localization.url_strategy', $strategy);
     }
 
     private function resolver(): LocalizedUrlResolver

@@ -2,6 +2,18 @@
 
 All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
+## 0.2.0 - Unreleased
+
+### Added
+
+- Added configurable locale URL strategy for multilingual route generation.
+- Added configurable per-locale sitemap paths.
+- Added sitemap index entries for localized sitemap files.
+
+### Changed
+
+- Improved localized URL generation safety for prefixed and default-locale-without-prefix URL structures.
+
 ## 0.1.1 - 2026-06-29
 
 ### Added

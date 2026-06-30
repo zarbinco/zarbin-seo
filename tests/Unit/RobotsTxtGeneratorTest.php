@@ -48,6 +48,38 @@ final class RobotsTxtGeneratorTest extends TestCase
         $this->assertStringContainsString('Sitemap: https://example.com/sitemap_index.xml', $robots);
     }
 
+    public function test_auto_adds_sitemap_index_when_localized_sitemap_paths_are_configured(): void
+    {
+        config()->set('app.url', 'https://example.com');
+        config()->set('zarbin-seo.sitemap.localized_paths', [
+            'fa' => 'sitemap-fa.xml',
+            'en' => 'sitemap-en.xml',
+        ]);
+
+        $robots = (new RobotsTxtGenerator)->render();
+
+        $this->assertSame(1, substr_count($robots, 'Sitemap: https://example.com/sitemap_index.xml'));
+        $this->assertStringNotContainsString('Sitemap: https://example.com/sitemap-fa.xml', $robots);
+        $this->assertStringNotContainsString('Sitemap: https://example.com/sitemap-en.xml', $robots);
+    }
+
+    public function test_manual_sitemaps_win_when_localized_sitemap_paths_are_configured(): void
+    {
+        config()->set('app.url', 'https://example.com');
+        config()->set('zarbin-seo.sitemap.localized_paths', [
+            'fa' => 'sitemap-fa.xml',
+        ]);
+        config()->set('zarbin-seo.robots_txt.sitemaps', [
+            'https://cdn.example.com/custom-sitemap.xml',
+            'https://cdn.example.com/custom-sitemap.xml',
+        ]);
+
+        $robots = (new RobotsTxtGenerator)->render();
+
+        $this->assertSame(1, substr_count($robots, 'Sitemap: https://cdn.example.com/custom-sitemap.xml'));
+        $this->assertStringNotContainsString('Sitemap: https://example.com/sitemap_index.xml', $robots);
+    }
+
     public function test_removes_duplicate_lines(): void
     {
         config()->set('zarbin-seo.robots_txt.allow', ['/', '/']);

@@ -214,12 +214,19 @@ Enable localization and configure supported locales:
     'enabled' => true,
     'locales' => ['fa', 'en'],
     'default_locale' => 'fa',
+    'url_strategy' => 'prefixed_all',
     'route_parameter' => 'locale',
     'missing_translation_strategy' => 'hide',
     'generate_hreflang' => true,
     'x_default' => 'fa',
 ],
 ```
+
+Locale URL strategies keep generated route URLs predictable:
+
+- `default_without_prefix`: use URLs like `/about` for the default locale and `/fa/about` for other locales.
+- `prefixed_all`: use URLs like `/en/about` and `/fa/about`.
+- `custom`: do not infer prefixes; use `localized_urls`, `localized_routes`, model methods, or canonical URLs for special projects.
 
 Models can implement `LocalizableSeo` when they know which languages exist:
 
@@ -270,6 +277,27 @@ Public package routes are registered by default:
 /sitemap_index.xml
 /robots.txt
 ```
+
+Projects that publish separate sitemap files per language can configure localized sitemap paths:
+
+```php
+'localization' => [
+    'enabled' => true,
+    'locales' => ['fa', 'en'],
+    'default_locale' => 'fa',
+    'url_strategy' => 'prefixed_all',
+    'route_parameter' => 'locale',
+],
+
+'sitemap' => [
+    'localized_paths' => [
+        'fa' => 'sitemap-fa.xml',
+        'en' => 'sitemap-en.xml',
+    ],
+],
+```
+
+With that config, `/sitemap-fa.xml` renders only `fa` URLs, `/sitemap-en.xml` renders only `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. When `robots_txt.sitemaps` is not manually configured, robots.txt points to the sitemap index.
 
 Route sitemap entry:
 
@@ -552,8 +580,8 @@ Important config areas:
 
 - `defaults`: fallback title, description, image, separator, robots, and description limit.
 - `features`: toggle Open Graph, Twitter, schema, sitemap, robots.txt, alternates, database overrides, UI, and commerce.
-- `localization`: locales, default locale, route parameter, missing translation strategy, hreflang, and `x-default`.
-- `sitemap`: public route, paths, defaults, alternates, and cache placeholders.
+- `localization`: locales, default locale, URL strategy, route parameter, missing translation strategy, hreflang, and `x-default`.
+- `sitemap`: public route, default/index paths, localized paths, defaults, alternates, and cache placeholders.
 - `robots_txt`: public route, user-agent, allow/disallow, and sitemap lines.
 - `database`: optional override table/model settings.
 - `ui`: optional Blade UI route, middleware, gate, and preview settings.

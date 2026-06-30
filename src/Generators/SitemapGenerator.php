@@ -14,7 +14,7 @@ use Zarbin\Seo\Renderers\SitemapRenderer;
 use Zarbin\Seo\Resolvers\SitemapUrlResolver;
 use Zarbin\Seo\Resolvers\TranslationAvailabilityResolver;
 use Zarbin\Seo\Support\LocaleHelper;
-use Zarbin\Seo\Support\RouteUrl;
+use Zarbin\Seo\Support\SitemapPathResolver;
 
 final class SitemapGenerator
 {
@@ -58,9 +58,23 @@ final class SitemapGenerator
      */
     public function index(): array
     {
-        $loc = $this->absoluteUrl((string) $this->config('zarbin-seo.sitemap.path', 'sitemap.xml'));
+        if ((bool) $this->config('zarbin-seo.sitemap.include_localized_in_index', true)) {
+            $localized = SitemapPathResolver::localizedSitemapEntries();
 
-        return $loc === null ? [] : [[
+            if ($localized !== []) {
+                return array_map(
+                    static fn (array $entry): array => [
+                        'loc' => $entry['loc'],
+                        'lastmod' => (new DateTimeImmutable)->format(DATE_ATOM),
+                    ],
+                    $localized,
+                );
+            }
+        }
+
+        $loc = SitemapPathResolver::urlForPath(SitemapPathResolver::defaultPath());
+
+        return trim($loc) === '' ? [] : [[
             'loc' => $loc,
             'lastmod' => (new DateTimeImmutable)->format(DATE_ATOM),
         ]];
@@ -238,18 +252,6 @@ final class SitemapGenerator
         } catch (Throwable) {
             return [];
         }
-    }
-
-    private function absoluteUrl(string $path): ?string
-    {
-        $path = trim($path, '/');
-        $appUrl = $this->config('app.url');
-
-        if (is_string($appUrl) && trim($appUrl) !== '') {
-            return rtrim($appUrl, '/').'/'.$path;
-        }
-
-        return RouteUrl::make('zarbin-seo.sitemap.index') ?? RouteUrl::make('zarbin-seo.sitemap');
     }
 
     private function config(?string $key = null, mixed $default = null): mixed

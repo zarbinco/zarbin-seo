@@ -9,6 +9,8 @@ use Throwable;
 use Zarbin\Seo\Contracts\LocalizableSeo;
 use Zarbin\Seo\Data\SeoData;
 use Zarbin\Seo\Support\AttributeReader;
+use Zarbin\Seo\Support\LocaleHelper;
+use Zarbin\Seo\Support\LocaleUrlStrategy;
 use Zarbin\Seo\Support\RouteUrl;
 
 final class LocalizedUrlResolver
@@ -33,11 +35,18 @@ final class LocalizedUrlResolver
             }
 
             $config = $this->modelConfig($source);
+            $localizedUrls = is_array($config['localized_urls'] ?? null) ? $config['localized_urls'] : [];
+            $localizedUrl = $localizedUrls[$locale] ?? null;
+
+            if (is_string($localizedUrl) && trim($localizedUrl) !== '') {
+                return trim($localizedUrl);
+            }
+
             $localizedRoutes = is_array($config['localized_routes'] ?? null) ? $config['localized_routes'] : [];
             $localizedRoute = $localizedRoutes[$locale] ?? null;
 
             if (is_string($localizedRoute)) {
-                $url = RouteUrl::make($localizedRoute, $this->routeParameters($source, $config, $locale, false));
+                $url = $this->safeRouteUrl($localizedRoute, $this->routeParameters($source, $config, $locale, false), $locale);
 
                 if ($url !== null) {
                     return $url;
@@ -45,7 +54,13 @@ final class LocalizedUrlResolver
             }
 
             if (is_string($config['route'] ?? null)) {
-                $url = RouteUrl::make($config['route'], $this->routeParameters($source, $config, $locale));
+                $url = $this->safeRouteUrl($config['route'], $this->routeParameters($source, $config, $locale), $locale);
+
+                if ($url !== null) {
+                    return $url;
+                }
+
+                $url = $this->safeRouteUrl($config['route'], $this->routeParameters($source, $config, $locale, false), $locale);
 
                 if ($url !== null) {
                     return $url;
@@ -77,20 +92,20 @@ final class LocalizedUrlResolver
         $localizedRoute = $localizedRoutes[$locale] ?? null;
 
         if (is_string($localizedRoute)) {
-            $url = RouteUrl::make($localizedRoute, $this->routeParametersForConfig($config, $parameters, $locale, false));
+            $url = $this->safeRouteUrl($localizedRoute, $this->routeParametersForConfig($config, $parameters, $locale, false), $locale);
 
             if ($url !== null) {
                 return $url;
             }
         }
 
-        $url = RouteUrl::make($routeName, $this->routeParametersForConfig($config, $parameters, $locale));
+        $url = $this->safeRouteUrl($routeName, $this->routeParametersForConfig($config, $parameters, $locale), $locale);
 
         if ($url !== null) {
             return $url;
         }
 
-        $url = RouteUrl::make($routeName, $this->routeParametersForConfig($config, $parameters, $locale, false));
+        $url = $this->safeRouteUrl($routeName, $this->routeParametersForConfig($config, $parameters, $locale, false), $locale);
 
         if ($url !== null) {
             return $url;
@@ -189,13 +204,60 @@ final class LocalizedUrlResolver
      */
     private function withRouteLocale(array $parameters, string $locale): array
     {
-        $routeParameter = $this->routeParameterName();
+        return LocaleUrlStrategy::routeParametersForLocale($parameters, $locale);
+    }
 
-        if ($routeParameter === null || array_key_exists($routeParameter, $parameters)) {
-            return $parameters;
+    /**
+     * @param  array<int|string, mixed>  $parameters
+     */
+    private function safeRouteUrl(string $routeName, array $parameters, string $locale): ?string
+    {
+        $url = RouteUrl::make($routeName, $parameters);
+
+        if ($url === null || $this->hasDuplicatedLocalePrefix($url, $locale)) {
+            return null;
         }
 
-        return array_replace([$routeParameter => $locale], $parameters);
+        return $url;
+    }
+
+    private function hasDuplicatedLocalePrefix(string $url, string $locale): bool
+    {
+        $locales = $this->configuredLocales();
+
+        if ($locales === []) {
+            return false;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+        $path = is_string($path) ? $path : $url;
+        $segments = array_values(array_filter(explode('/', trim($path, '/')), fn (string $segment): bool => $segment !== ''));
+        $locale = LocaleHelper::normalizeLocale($locale);
+
+        for ($index = 0; $index < count($segments) - 1; $index++) {
+            $current = $segments[$index];
+            $next = $segments[$index + 1];
+
+            if (
+                in_array($current, $locales, true)
+                && in_array($next, $locales, true)
+                && ($locale === null || $current === $locale || $next === $locale)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function configuredLocales(): array
+    {
+        $locales = $this->config('zarbin-seo.localization.locales', []);
+
+        return is_array($locales) ? LocaleHelper::normalizeLocales($locales) : [];
     }
 
     private function routeParameterName(): ?string

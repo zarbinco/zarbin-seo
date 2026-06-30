@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zarbin\Seo\Generators;
 
 use Throwable;
+use Zarbin\Seo\Support\SitemapPathResolver;
 
 final class RobotsTxtGenerator
 {
@@ -60,9 +61,9 @@ final class RobotsTxtGenerator
             return $sitemaps;
         }
 
-        $url = $this->absoluteUrl((string) $this->config('zarbin-seo.sitemap.index_path', 'sitemap_index.xml'));
+        $url = SitemapPathResolver::urlForPath(SitemapPathResolver::indexPath());
 
-        return $url === null ? [] : [$url];
+        return trim($url) === '' ? [] : [$url];
     }
 
     /**
@@ -91,17 +92,6 @@ final class RobotsTxtGenerator
         }
 
         return array_values(array_unique($normalized));
-    }
-
-    private function absoluteUrl(string $path): ?string
-    {
-        $appUrl = $this->config('app.url');
-
-        if (! is_string($appUrl) || trim($appUrl) === '') {
-            return null;
-        }
-
-        return rtrim($appUrl, '/').'/'.trim($path, '/');
     }
 
     private function config(?string $key = null, mixed $default = null): mixed

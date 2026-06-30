@@ -82,12 +82,26 @@ final class PersianDocumentationTest extends TestCase
         $this->assertStringContainsString('php artisan zarbin-seo:sitemap', $combined);
     }
 
-    public function test_changelog_mentions_persian_documentation_for_unreleased_version(): void
+    public function test_changelog_mentions_persian_documentation_for_release_version(): void
     {
         $changelog = $this->contents('CHANGELOG.md');
-        $section = str($changelog)->between('## 0.1.1 - Unreleased', '## 0.1.0')->toString();
+        $section = str($changelog)->between('## 0.1.1 - 2026-06-29', '## 0.1.0')->toString();
 
         $this->assertStringContainsString('Added Persian documentation', $section);
+    }
+
+    public function test_persian_docs_describe_locale_url_strategies_and_localized_sitemaps(): void
+    {
+        $combined = $this->contents('docs/fa/multilingual.md')
+            .$this->contents('docs/fa/sitemap-robots.md')
+            .$this->contents('docs/fa/config-reference.md');
+
+        $this->assertStringContainsString('/about', $combined);
+        $this->assertStringContainsString('/fa/about', $combined);
+        $this->assertStringContainsString('/en/about', $combined);
+        $this->assertStringContainsString('sitemap-fa.xml', $combined);
+        $this->assertStringContainsString('sitemap-en.xml', $combined);
+        $this->assertStringContainsString('localized_urls', $combined);
     }
 
     private function path(string $path): string

@@ -30,6 +30,27 @@ return [
         'enabled' => false,
         'locales' => [],
         'default_locale' => null,
+
+        /*
+         |--------------------------------------------------------------------------
+         | Locale URL Strategy
+         |--------------------------------------------------------------------------
+         |
+         | prefixed_all:
+         |   /en/about
+         |   /fa/about
+         |
+         | default_without_prefix:
+         |   /about
+         |   /fa/about
+         |
+         | custom:
+         |   rely on localized_urls or localized_routes mappings.
+         |
+         */
+        'url_strategy' => 'custom',
+        // custom | prefixed_all | default_without_prefix
+
         'route_parameter' => null,
         'missing_translation_strategy' => 'hide',
         'generate_hreflang' => true,
@@ -41,6 +62,22 @@ return [
         'route_enabled' => true,
         'path' => 'sitemap.xml',
         'index_path' => 'sitemap_index.xml',
+
+        /*
+         |--------------------------------------------------------------------------
+         | Localized Sitemap Paths
+         |--------------------------------------------------------------------------
+         |
+         | Example:
+         | 'localized_paths' => [
+         |     'fa' => 'sitemap-fa.xml',
+         |     'en' => 'sitemap-en.xml',
+         | ],
+         */
+        'localized_paths' => [],
+        'localized_route_enabled' => true,
+        'include_localized_in_index' => true,
+
         'include_alternates' => true,
         'defaults' => [
             'priority' => 0.5,

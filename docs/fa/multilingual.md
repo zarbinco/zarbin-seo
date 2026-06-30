@@ -11,12 +11,35 @@ Zarbin SEO بدون وابستگی به پکیج ترجمه خاص، می‌تو
     'enabled' => true,
     'locales' => ['fa', 'en'],
     'default_locale' => 'fa',
+    'url_strategy' => 'prefixed_all',
     'route_parameter' => 'locale',
     'missing_translation_strategy' => 'hide',
     'generate_hreflang' => true,
     'x_default' => 'fa',
 ],
 ```
+
+## استراتژی URL برای locale
+
+برای پروژه‌های چندزبانه دو ساختار رایج وجود دارد:
+
+- `default_without_prefix`: زبان پیش‌فرض بدون prefix است، مثلا `/about`، و زبان‌های دیگر با prefix می‌آیند، مثلا `/fa/about`.
+- `prefixed_all`: همه زبان‌ها prefix دارند، مثلا `/en/about` و `/fa/about`.
+- `custom`: پکیج prefix حدس نمی‌زند و باید از `localized_urls`، `localized_routes`، متدهای مدل یا canonical صریح استفاده کنید.
+
+برای سایت‌هایی مثل Sunich که همه زبان‌ها prefix دارند، معمولا این تنظیم مناسب است:
+
+```php
+'localization' => [
+    'enabled' => true,
+    'locales' => ['fa', 'en'],
+    'default_locale' => 'fa',
+    'url_strategy' => 'prefixed_all',
+    'route_parameter' => 'locale',
+],
+```
+
+اگر پروژه ساختار خاصی دارد یا routeها با package دیگری ساخته می‌شوند، `custom` امن‌تر است و URL هر زبان را صریح تعریف می‌کنید.
 
 ## قرارداد LocalizableSeo
 

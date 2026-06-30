@@ -8,6 +8,27 @@
 - `/sitemap_index.xml`
 - `/robots.txt`
 
+اگر پروژه برای هر زبان sitemap جدا دارد، می‌توانید pathهای جدا تعریف کنید:
+
+```php
+'localization' => [
+    'enabled' => true,
+    'locales' => ['fa', 'en'],
+    'default_locale' => 'fa',
+    'url_strategy' => 'prefixed_all',
+    'route_parameter' => 'locale',
+],
+
+'sitemap' => [
+    'localized_paths' => [
+        'fa' => 'sitemap-fa.xml',
+        'en' => 'sitemap-en.xml',
+    ],
+],
+```
+
+با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
+
 ## Routeهای sitemap
 
 برای route-only pageها از config استفاده کنید:
