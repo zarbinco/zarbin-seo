@@ -38,6 +38,7 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
 
 ```php
 'sitemap' => [
+    'base_url' => 'https://sunich.org',
     'path' => 'sitemap.xml',
     'index_path' => 'sitemap_index.xml',
     'localized_paths' => [
@@ -49,7 +50,7 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
 ],
 ```
 
-اگر `localized_paths` خالی باشد، رفتار قبلی `/sitemap.xml` باقی می‌ماند.
+اگر `localized_paths` خالی باشد، رفتار قبلی `/sitemap.xml` باقی می‌ماند. اگر host تولید sitemap با host واقعی سایت فرق دارد، `base_url` را تنظیم کنید تا مثلا خروجی بین `localhost:3000` و `sunich.test` قاطی نشود.
 
 ## robots_txt
 
@@ -93,5 +94,17 @@ mapping صفحه‌های route-only:
         'description' => 'Welcome to our website.',
         'sitemap' => true,
     ],
+    'products.fa' => [
+        'locale' => 'fa',
+        'canonical' => 'https://example.com/fa/products',
+        'sitemap' => true,
+    ],
+    'products.en' => [
+        'locale' => 'en',
+        'canonical' => 'https://example.com/en/products',
+        'sitemap' => true,
+    ],
 ],
 ```
+
+`locale` یا `locales` روی route مشخص می‌کند آن URL در کدام sitemap زبانی بیاید؛ مثلا `sitemap-fa.xml` فقط URLهای فارسی را نشان دهد.

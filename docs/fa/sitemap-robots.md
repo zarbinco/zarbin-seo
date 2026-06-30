@@ -20,6 +20,7 @@
 ],
 
 'sitemap' => [
+    'base_url' => 'https://sunich.org',
     'localized_paths' => [
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
@@ -27,7 +28,26 @@
 ],
 ```
 
-با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
+با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. `base_url` کمک می‌کند host در sitemap با host واقعی سایت یکی بماند و مثلا بین `localhost:3000` و `sunich.test` قاطی نشود. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
+
+برای اینکه `sitemap-fa.xml` فقط URLهای فارسی و `sitemap-en.xml` فقط URLهای انگلیسی را نشان دهد، روی route entry مقدار `locale` یا `locales` بگذارید:
+
+```php
+'routes' => [
+    'products.fa' => [
+        'locale' => 'fa',
+        'canonical' => 'https://example.com/fa/products',
+        'sitemap' => true,
+    ],
+    'products.en' => [
+        'locale' => 'en',
+        'canonical' => 'https://example.com/en/products',
+        'sitemap' => true,
+    ],
+],
+```
+
+اگر route entry مقدار `locale` یا `locales` نداشته باشد، برای سازگاری با نسخه‌های قبلی مثل قبل در sitemapها می‌آید.
 
 ## Routeهای sitemap
 

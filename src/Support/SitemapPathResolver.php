@@ -64,6 +64,12 @@ final class SitemapPathResolver
     public static function urlForPath(string $path): string
     {
         $path = self::normalizePath($path);
+        $baseUrl = self::baseUrl();
+
+        if ($baseUrl !== null) {
+            return $path === '' ? $baseUrl : $baseUrl.'/'.$path;
+        }
+
         $appUrl = self::config('app.url');
 
         if (is_string($appUrl) && trim($appUrl) !== '') {
@@ -123,6 +129,19 @@ final class SitemapPathResolver
     private static function normalizePath(string $path): string
     {
         return trim(preg_replace('#/+#', '/', trim($path)) ?? '', '/');
+    }
+
+    private static function baseUrl(): ?string
+    {
+        $baseUrl = self::config('zarbin-seo.sitemap.base_url');
+
+        if (! is_scalar($baseUrl)) {
+            return null;
+        }
+
+        $baseUrl = rtrim(trim((string) $baseUrl), '/');
+
+        return $baseUrl === '' ? null : $baseUrl;
     }
 
     private static function config(?string $key = null, mixed $default = null): mixed

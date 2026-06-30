@@ -12,6 +12,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- Hardened localized sitemap routes, content types, locale-scoped route entries, and sitemap base URL handling.
 - Improved localized URL generation safety for prefixed and default-locale-without-prefix URL structures.
 
 ## 0.1.1 - 2026-06-29

@@ -65,6 +65,21 @@ return [
 
         /*
          |--------------------------------------------------------------------------
+         | Sitemap Base URL
+         |--------------------------------------------------------------------------
+         |
+         | When null, the package uses app.url/url() as before. Set this when
+         | sitemap files must use a public host that differs from the current
+         | request host.
+         |
+         | Example:
+         | 'base_url' => 'https://sunich.org',
+         |
+         */
+        'base_url' => null,
+
+        /*
+         |--------------------------------------------------------------------------
          | Localized Sitemap Paths
          |--------------------------------------------------------------------------
          |
@@ -161,5 +176,6 @@ return [
 
     'routes' => [
         // Route-only page mappings may be registered by route name.
+        // Add 'locale' => 'fa' or 'locales' => ['fa', 'en'] to scope entries to localized sitemap output.
     ],
 ];

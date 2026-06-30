@@ -121,7 +121,12 @@ final class SitemapGenerator
         $urls = [];
 
         foreach ($routes as $routeName => $config) {
-            if (! is_string($routeName) || ! is_array($config) || ! $this->routeShouldBeIncluded($config)) {
+            if (
+                ! is_string($routeName)
+                || ! is_array($config)
+                || ! $this->routeShouldBeIncluded($config)
+                || ! $this->routeMatchesLocale($config, $locale)
+            ) {
                 continue;
             }
 
@@ -189,6 +194,32 @@ final class SitemapGenerator
         }
 
         return false;
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     */
+    private function routeMatchesLocale(array $config, ?string $locale): bool
+    {
+        $locale = LocaleHelper::normalizeLocale($locale);
+
+        if ($locale === null) {
+            return true;
+        }
+
+        $configuredLocale = LocaleHelper::normalizeLocale(is_scalar($config['locale'] ?? null) ? (string) $config['locale'] : null);
+
+        if ($configuredLocale !== null) {
+            return $configuredLocale === $locale;
+        }
+
+        if (! array_key_exists('locales', $config) || ! is_array($config['locales'])) {
+            return true;
+        }
+
+        $locales = LocaleHelper::normalizeLocales($config['locales']);
+
+        return $locales === [] || in_array($locale, $locales, true);
     }
 
     /**

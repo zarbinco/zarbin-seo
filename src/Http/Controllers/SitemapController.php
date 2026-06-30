@@ -14,16 +14,12 @@ final class SitemapController
 {
     public function __invoke(): Response|string
     {
-        return response((new SitemapGenerator)->render(), 200, [
-            'Content-Type' => 'application/xml; charset=UTF-8',
-        ]);
+        return $this->xmlResponse((new SitemapGenerator)->render());
     }
 
     public function index(): Response|string
     {
-        return response((new SitemapGenerator)->renderIndex(), 200, [
-            'Content-Type' => 'application/xml; charset=UTF-8',
-        ]);
+        return $this->xmlResponse((new SitemapGenerator)->renderIndex());
     }
 
     public function localized(string $locale): Response|string
@@ -31,12 +27,15 @@ final class SitemapController
         $locale = LocaleHelper::normalizeLocale($locale);
 
         if ($locale === null || ! array_key_exists($locale, SitemapPathResolver::localizedPaths())) {
-            return response((new SitemapRenderer)->render([]), 200, [
-                'Content-Type' => 'application/xml; charset=UTF-8',
-            ]);
+            return $this->xmlResponse((new SitemapRenderer)->render([]));
         }
 
-        return response((new SitemapGenerator)->render($locale), 200, [
+        return $this->xmlResponse((new SitemapGenerator)->render($locale));
+    }
+
+    private function xmlResponse(string $xml): Response|string
+    {
+        return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
         ]);
     }

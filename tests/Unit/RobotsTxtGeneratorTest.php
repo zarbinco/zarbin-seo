@@ -48,6 +48,17 @@ final class RobotsTxtGeneratorTest extends TestCase
         $this->assertStringContainsString('Sitemap: https://example.com/sitemap_index.xml', $robots);
     }
 
+    public function test_auto_sitemap_uses_sitemap_base_url_when_configured(): void
+    {
+        config()->set('app.url', 'https://example.com');
+        config()->set('zarbin-seo.sitemap.base_url', 'http://sunich.test');
+
+        $robots = (new RobotsTxtGenerator)->render();
+
+        $this->assertStringContainsString('Sitemap: http://sunich.test/sitemap_index.xml', $robots);
+        $this->assertStringNotContainsString('Sitemap: https://example.com/sitemap_index.xml', $robots);
+    }
+
     public function test_auto_adds_sitemap_index_when_localized_sitemap_paths_are_configured(): void
     {
         config()->set('app.url', 'https://example.com');

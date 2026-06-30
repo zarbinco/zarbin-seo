@@ -44,8 +44,10 @@ final class LocalizedSitemapRoutesTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/xml', (string) $response->headers->get('Content-Type'));
-        $response->assertSee('<loc>http://localhost/fa/products</loc>', false);
-        $response->assertDontSee('<loc>http://localhost/en/products</loc>', false);
+        $response->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
+        $response->assertSee('<urlset', false);
+        $response->assertSee('<loc>http://sunich.test/fa/products</loc>', false);
+        $response->assertDontSee('<loc>http://sunich.test/en/products</loc>', false);
     }
 
     public function test_en_localized_sitemap_route_returns_en_xml(): void
@@ -56,15 +58,23 @@ final class LocalizedSitemapRoutesTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/xml', (string) $response->headers->get('Content-Type'));
-        $response->assertSee('<loc>http://localhost/en/products</loc>', false);
-        $response->assertDontSee('<loc>http://localhost/fa/products</loc>', false);
+        $response->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false);
+        $response->assertSee('<urlset', false);
+        $response->assertSee('<loc>http://sunich.test/en/products</loc>', false);
+        $response->assertDontSee('<loc>http://sunich.test/fa/products</loc>', false);
     }
 
     private function registerProductsRoute(): void
     {
-        Route::get('/{locale}/products', fn (string $locale): string => $locale)->name('localized.routes.products');
         config()->set('zarbin-seo.routes', [
-            'localized.routes.products' => [
+            'localized.routes.products.fa' => [
+                'locale' => 'fa',
+                'canonical' => 'http://sunich.test/fa/products',
+                'sitemap' => true,
+            ],
+            'localized.routes.products.en' => [
+                'locale' => 'en',
+                'canonical' => 'http://sunich.test/en/products',
                 'sitemap' => true,
             ],
         ]);

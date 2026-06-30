@@ -52,6 +52,22 @@ final class SitemapPathResolverTest extends TestCase
         $this->assertSame('https://example.com/sitemap-fa.xml', SitemapPathResolver::urlForPath('/sitemap-fa.xml'));
     }
 
+    public function test_url_for_path_uses_sitemap_base_url_when_configured(): void
+    {
+        config()->set('app.url', 'https://example.com');
+        config()->set('zarbin-seo.sitemap.base_url', 'http://sunich.test');
+
+        $this->assertSame('http://sunich.test/sitemap-fa.xml', SitemapPathResolver::urlForPath('sitemap-fa.xml'));
+    }
+
+    public function test_url_for_path_normalizes_sitemap_base_url_and_leading_path_slash(): void
+    {
+        config()->set('app.url', 'https://example.com');
+        config()->set('zarbin-seo.sitemap.base_url', 'http://sunich.test/');
+
+        $this->assertSame('http://sunich.test/sitemap-en.xml', SitemapPathResolver::urlForPath('/sitemap-en.xml'));
+    }
+
     public function test_url_for_path_falls_back_to_url_helper_when_app_url_is_empty(): void
     {
         config()->set('app.url', '');

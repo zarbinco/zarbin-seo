@@ -290,6 +290,7 @@ Projects that publish separate sitemap files per language can configure localize
 ],
 
 'sitemap' => [
+    'base_url' => 'https://example.com',
     'localized_paths' => [
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
@@ -297,7 +298,26 @@ Projects that publish separate sitemap files per language can configure localize
 ],
 ```
 
-With that config, `/sitemap-fa.xml` renders only `fa` URLs, `/sitemap-en.xml` renders only `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. When `robots_txt.sitemaps` is not manually configured, robots.txt points to the sitemap index.
+With that config, `/sitemap-fa.xml` renders `fa` URLs, `/sitemap-en.xml` renders `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. `localized_paths` controls the sitemap file paths. `sitemap.base_url` controls the host used for sitemap index URLs and robots.txt auto sitemap links, which is useful when the current request host differs from the public site host.
+
+Use `locale` or `locales` on route entries to control which localized sitemap includes each URL:
+
+```php
+'routes' => [
+    'products.fa' => [
+        'locale' => 'fa',
+        'canonical' => 'https://example.com/fa/products',
+        'sitemap' => true,
+    ],
+    'products.en' => [
+        'locale' => 'en',
+        'canonical' => 'https://example.com/en/products',
+        'sitemap' => true,
+    ],
+],
+```
+
+If a route entry has no `locale` or `locales`, it remains included as before for backward compatibility. When `robots_txt.sitemaps` is not manually configured, robots.txt points to the sitemap index.
 
 Route sitemap entry:
 

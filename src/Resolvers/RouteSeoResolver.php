@@ -117,7 +117,11 @@ final class RouteSeoResolver
             return null;
         }
 
-        return (string) $value;
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            return (string) $value;
+        }
+
+        return null;
     }
 
     private function config(?string $key = null, mixed $default = null): mixed
