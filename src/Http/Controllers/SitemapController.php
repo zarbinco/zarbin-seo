@@ -12,17 +12,17 @@ use Zarbin\Seo\Support\SitemapPathResolver;
 
 final class SitemapController
 {
-    public function __invoke(): Response|string
+    public function __invoke(): Response
     {
         return $this->xmlResponse((new SitemapGenerator)->render());
     }
 
-    public function index(): Response|string
+    public function index(): Response
     {
         return $this->xmlResponse((new SitemapGenerator)->renderIndex());
     }
 
-    public function localized(string $locale): Response|string
+    public function localized(string $locale): Response
     {
         $locale = LocaleHelper::normalizeLocale($locale);
 
@@ -33,10 +33,11 @@ final class SitemapController
         return $this->xmlResponse((new SitemapGenerator)->render($locale));
     }
 
-    private function xmlResponse(string $xml): Response|string
+    private function xmlResponse(string $xml): Response
     {
-        return response($xml, 200, [
-            'Content-Type' => 'application/xml; charset=UTF-8',
-        ]);
+        $response = new Response($xml, 200);
+        $response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
+
+        return $response;
     }
 }
