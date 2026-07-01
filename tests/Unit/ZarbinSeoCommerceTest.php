@@ -65,6 +65,31 @@ final class ZarbinSeoCommerceTest extends TestCase
         $this->assertStringContainsString('"priceCurrency":"IRR"', $html);
     }
 
+    public function test_catalog_commerce_json_ld_renders_product_without_offer(): void
+    {
+        $html = seo()
+            ->reset()
+            ->commerce(['name' => 'Catalog Product'])
+            ->jsonLd();
+
+        $this->assertStringContainsString('"@type":"Product"', $html);
+        $this->assertStringContainsString('"name":"Catalog Product"', $html);
+        $this->assertStringNotContainsString('"offers"', $html);
+    }
+
+    public function test_zero_price_commerce_json_ld_renders_offer(): void
+    {
+        $html = seo()
+            ->reset()
+            ->commerce(['price' => 0, 'currency' => 'IRR'])
+            ->jsonLd();
+
+        $this->assertStringContainsString('"@type":"Product"', $html);
+        $this->assertStringContainsString('"@type":"Offer"', $html);
+        $this->assertStringContainsString('"price":0', $html);
+        $this->assertStringContainsString('"priceCurrency":"IRR"', $html);
+    }
+
     public function test_existing_fluent_setters_still_work(): void
     {
         $data = seo()

@@ -6,6 +6,7 @@ namespace Zarbin\Seo\Tests\Unit;
 
 use Zarbin\Seo\Data\SeoData;
 use Zarbin\Seo\Renderers\JsonLdRenderer;
+use Zarbin\Seo\Resolvers\SeoSourceResolver;
 use Zarbin\Seo\Tests\TestCase;
 
 final class JsonLdProductRendererTest extends TestCase
@@ -41,6 +42,42 @@ final class JsonLdProductRendererTest extends TestCase
 
         $this->assertSame('Offer', $payload['offers']['@type']);
         $this->assertSame(120000, $payload['offers']['price']);
+        $this->assertSame('IRR', $payload['offers']['priceCurrency']);
+    }
+
+    public function test_renders_product_json_ld_without_offer(): void
+    {
+        $payload = $this->payload((new JsonLdRenderer)->render(SeoData::make([
+            'extra' => [
+                'commerce' => [
+                    'name' => 'Catalog product',
+                    'brand' => 'Sunich',
+                ],
+            ],
+        ])));
+
+        $this->assertSame('Product', $payload['@type']);
+        $this->assertSame('Catalog product', $payload['name']);
+        $this->assertArrayNotHasKey('offers', $payload);
+    }
+
+    public function test_renders_product_json_ld_with_translation_aware_price(): void
+    {
+        config()->set('zarbin-seo.features.commerce', true);
+        config()->set('zarbin-seo.commerce.enabled', true);
+        config()->set('zarbin-seo.models.'.JsonLdTranslationProduct::class.'.commerce', [
+            'enabled' => true,
+            'name' => ['translations[locale={locale}].title', 'title'],
+            'price' => 'translations[locale={locale}].price',
+            'currency' => 'literal:IRR',
+        ]);
+
+        $data = (new SeoSourceResolver)->resolve(new JsonLdTranslationProduct, 'fa');
+        $payload = $this->payload((new JsonLdRenderer)->render($data));
+
+        $this->assertSame('Product', $payload['@type']);
+        $this->assertSame('Fa product', $payload['name']);
+        $this->assertSame(1200, $payload['offers']['price']);
         $this->assertSame('IRR', $payload['offers']['priceCurrency']);
     }
 
@@ -87,4 +124,17 @@ final class JsonLdProductRendererTest extends TestCase
 
         return json_decode($matches[1], true, 512, JSON_THROW_ON_ERROR);
     }
+}
+
+final class JsonLdTranslationProduct
+{
+    public string $title = 'Fallback product';
+
+    /**
+     * @var array<int, array<string, mixed>>
+     */
+    public array $translations = [
+        ['locale' => 'fa', 'title' => 'Fa product', 'price' => 1200],
+        ['locale' => 'en', 'title' => 'En product', 'price' => 2],
+    ];
 }

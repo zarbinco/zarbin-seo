@@ -178,13 +178,30 @@ final readonly class CommerceData
 
     public function hasOffer(): bool
     {
-        foreach ([$this->price, $this->currency, $this->availability, $this->condition, $this->seller] as $value) {
+        return $this->hasOfferData();
+    }
+
+    public function hasOfferData(): bool
+    {
+        foreach ([
+            $this->price,
+            $this->currency,
+            $this->availability,
+            $this->condition,
+            $this->seller,
+            $this->priceValidUntil,
+        ] as $value) {
             if ($this->filled($value)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public function hasPricedOffer(): bool
+    {
+        return $this->filled($this->price);
     }
 
     public function normalizedCurrency(): ?string

@@ -133,6 +133,116 @@ final class CommerceDataResolverTest extends TestCase
         $this->assertStringEndsWith('/fa/products/shoe', $data?->url);
     }
 
+    public function test_resolves_translation_aware_price_path(): void
+    {
+        $this->enableCommerce();
+        config()->set('zarbin-seo.models.'.ResolverProductModel::class.'.commerce', [
+            'enabled' => true,
+            'name' => ['translations[locale={locale}].title', 'title'],
+            'price' => 'translations[locale={locale}].price',
+            'currency' => 'literal:IRR',
+        ]);
+
+        $product = new ResolverProductModel;
+        $product->title = 'Fallback title';
+        $product->translations = [
+            (object) ['locale' => 'en', 'title' => 'Juice', 'price' => 2],
+            (object) ['locale' => 'fa', 'title' => 'Fa juice', 'price' => 1200],
+        ];
+
+        $data = (new CommerceDataResolver)->resolve($product, 'fa');
+
+        $this->assertSame('Fa juice', $data?->name);
+        $this->assertSame(1200, $data?->price);
+        $this->assertSame('IRR', $data?->currency);
+    }
+
+    public function test_resolves_price_from_relation_where_value_mapping(): void
+    {
+        $this->enableCommerce();
+        config()->set('zarbin-seo.models.'.ResolverProductModel::class.'.commerce', [
+            'enabled' => true,
+            'name' => 'title',
+            'price' => [
+                'relation' => 'translations',
+                'where' => ['locale' => '{locale}'],
+                'value' => 'price',
+            ],
+        ]);
+
+        $product = new ResolverProductModel;
+        $product->title = 'Mapped product';
+        $product->translations = [
+            ['locale' => 'en', 'price' => 2],
+            ['locale' => 'fa', 'price' => 1200],
+        ];
+
+        $data = (new CommerceDataResolver)->resolve($product, 'fa');
+
+        $this->assertSame(1200, $data?->price);
+    }
+
+    public function test_resolves_price_from_active_offer_relation_path(): void
+    {
+        $this->enableCommerce();
+        config()->set('zarbin-seo.models.'.ResolverProductModel::class.'.commerce', [
+            'enabled' => true,
+            'name' => 'title',
+            'price' => ['activeOffer.price', 'discount.price'],
+        ]);
+
+        $product = new ResolverProductModel;
+        $product->title = 'Offer product';
+        $product->activeOffer = (object) ['price' => 1200];
+        $product->discount = (object) ['price' => 900];
+
+        $data = (new CommerceDataResolver)->resolve($product, 'fa');
+
+        $this->assertSame(1200, $data?->price);
+    }
+
+    public function test_resolves_callable_mapping(): void
+    {
+        $this->enableCommerce();
+        config()->set('zarbin-seo.models.'.ResolverProductModel::class.'.commerce', [
+            'enabled' => true,
+            'name' => 'title',
+            'price' => static fn (ResolverProductModel $product, ?string $locale): int => $locale === 'fa'
+                ? $product->localizedPrices['fa']
+                : $product->localizedPrices['en'],
+        ]);
+
+        $product = new ResolverProductModel;
+        $product->title = 'Callable product';
+        $product->localizedPrices = ['fa' => 1200, 'en' => 2];
+
+        $data = (new CommerceDataResolver)->resolve($product, 'fa');
+
+        $this->assertSame(1200, $data?->price);
+    }
+
+    public function test_returns_commerce_data_for_catalog_product_without_price(): void
+    {
+        $this->enableCommerce();
+        config()->set('zarbin-seo.models.'.ResolverProductModel::class.'.commerce', [
+            'enabled' => true,
+            'name' => ['translations[locale={locale}].title', 'title'],
+            'brand' => 'brand.name',
+        ]);
+
+        $product = new ResolverProductModel;
+        $product->translations = [
+            ['locale' => 'fa', 'title' => 'Catalog product fa'],
+        ];
+        $product->brand = new ResolverBrand('Sunich');
+
+        $data = (new CommerceDataResolver)->resolve($product, 'fa');
+
+        $this->assertSame('Catalog product fa', $data?->name);
+        $this->assertSame('Sunich', $data?->brand);
+        $this->assertNull($data?->price);
+    }
+
     public function test_returns_null_when_no_identity_and_no_offer(): void
     {
         $this->enableCommerce();
@@ -198,6 +308,20 @@ final class ResolverProductModel
     public ?ResolverCategory $category = null;
 
     public ?string $slug = null;
+
+    /**
+     * @var array<int|string, mixed>
+     */
+    public array $translations = [];
+
+    public mixed $activeOffer = null;
+
+    public mixed $discount = null;
+
+    /**
+     * @var array<string, int>
+     */
+    public array $localizedPrices = [];
 }
 
 final class ResolverBrand

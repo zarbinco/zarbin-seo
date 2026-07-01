@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo\Schema;
 
+use Throwable;
 use Zarbin\Seo\Data\CommerceData;
 use Zarbin\Seo\Data\SeoData;
 
@@ -46,7 +47,7 @@ final class ProductSchemaBuilder
                 '@type' => 'Brand',
                 'name' => $commerce->brand,
             ],
-            'offers' => $commerce->hasOffer() ? $this->offer($commerce, $data) : null,
+            'offers' => $this->shouldIncludeOffer($commerce) ? $this->offer($commerce, $data) : null,
             'aggregateRating' => $this->aggregateRating($commerce),
         ];
 
@@ -91,6 +92,26 @@ final class ProductSchemaBuilder
         ];
     }
 
+    private function shouldIncludeOffer(CommerceData $commerce): bool
+    {
+        $mode = $this->config('zarbin-seo.commerce.offer.enabled', 'auto');
+
+        if ($mode === false || $mode === 'false') {
+            return false;
+        }
+
+        if ($mode === true || $mode === 'true') {
+            return $commerce->hasOfferData();
+        }
+
+        if ($commerce->hasPricedOffer()) {
+            return true;
+        }
+
+        return ! (bool) $this->config('zarbin-seo.commerce.offer.require_price', true)
+            && $commerce->hasOfferData();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -127,5 +148,18 @@ final class ProductSchemaBuilder
     private function filled(mixed $value): bool
     {
         return ! ($value === null || $value === '' || $value === []);
+    }
+
+    private function config(string $key, mixed $default = null): mixed
+    {
+        if (! function_exists('config')) {
+            return $default;
+        }
+
+        try {
+            return config($key, $default);
+        } catch (Throwable) {
+            return $default;
+        }
     }
 }

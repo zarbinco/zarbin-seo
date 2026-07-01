@@ -6,6 +6,8 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added translation-aware and relation-aware commerce field resolution.
+- Added optional Offer generation controls for Product schema.
 - Added configurable sitemap XML response content type.
 - Added configurable locale URL strategy for multilingual route generation.
 - Added configurable per-locale sitemap paths.
@@ -13,6 +15,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- Product schema can now be generated without Offer for catalog/company product pages.
 - Made sitemap hreflang alternates opt-in for cleaner default sitemap XML output.
 - Added doctor/readiness notice for sitemap xhtml alternates.
 - Hardened localized sitemap routes, content types, locale-scoped route entries, and sitemap base URL handling.

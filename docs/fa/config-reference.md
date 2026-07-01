@@ -72,6 +72,19 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
 
 ## commerce
 
+```php
+'commerce' => [
+    'enabled' => true,
+    'offer' => [
+        'enabled' => 'auto',
+        'require_price' => true,
+    ],
+    'default_currency' => 'IRR',
+],
+```
+
+`offer.enabled` می‌تواند `auto`، `true` یا `false` باشد. مقدار پیش‌فرض `auto` با `require_price=true` باعث می‌شود Product schema بدون price، Offer نسازد. برای mappingهای محصول می‌توانید از مسیرهای relation مثل `brand.name`، مسیرهای وابسته به locale مثل `translations[locale={locale}].price` و فرم `relation` / `where` / `value` استفاده کنید.
+
 currency پیش‌فرض، currency بر اساس locale، availability map و condition map.
 
 ## models

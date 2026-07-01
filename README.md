@@ -512,6 +512,10 @@ Commerce support is disabled by default and does not depend on WooCommerce, Cash
 
 'commerce' => [
     'enabled' => true,
+    'offer' => [
+        'enabled' => 'auto',
+        'require_price' => true,
+    ],
     'default_currency' => 'IRR',
     'currency_per_locale' => [
         'fa' => 'IRR',
@@ -519,6 +523,8 @@ Commerce support is disabled by default and does not depend on WooCommerce, Cash
     ],
 ],
 ```
+
+Offer generation is optional. The default `auto` mode builds an `Offer` only when real priced offer data exists, so corporate/catalog product pages can render valid Product schema without pretending to sell online. HTML/head SEO and commerce schema do not require an ecommerce package.
 
 Model mapping:
 
@@ -543,6 +549,42 @@ Model mapping:
     ],
 ],
 ```
+
+Commerce mappings can read nested relations and locale-aware collections. This is useful when price or copy lives on translations, discounts, active offers, variants, or price rows.
+
+Catalog product without Offer:
+
+```php
+'commerce' => [
+    'enabled' => true,
+    'name' => ['translations[locale={locale}].title', 'title'],
+    'description' => ['translations[locale={locale}].description', 'description'],
+    'brand' => 'brand.name',
+],
+```
+
+Ecommerce product with translated price:
+
+```php
+'commerce' => [
+    'enabled' => true,
+    'name' => ['translations[locale={locale}].title', 'title'],
+    'price' => ['translations[locale={locale}].price', 'activeOffer.price', 'discount.price'],
+    'currency' => 'literal:IRR',
+],
+```
+
+Relation filter form:
+
+```php
+'price' => [
+    'relation' => 'translations',
+    'where' => ['locale' => '{locale}'],
+    'value' => 'price',
+],
+```
+
+Fallback arrays return the first non-empty value and preserve `0` / `"0"`. Callables are also supported for project-specific lookups.
 
 Contract-based product data:
 
@@ -630,7 +672,7 @@ Important config areas:
 - `robots_txt`: public route, user-agent, allow/disallow, and sitemap lines.
 - `database`: optional override table/model settings.
 - `ui`: optional Blade UI route, middleware, gate, and preview settings.
-- `commerce`: default currency, locale currencies, availability map, and condition map.
+- `commerce`: optional Offer generation, default currency, locale currencies, availability map, and condition map.
 - `models`: model and holder mappings.
 - `routes`: route-only SEO mappings.
 

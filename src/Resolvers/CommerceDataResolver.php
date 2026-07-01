@@ -10,6 +10,7 @@ use Zarbin\Seo\Contracts\CommerceSeo;
 use Zarbin\Seo\Data\CommerceData;
 use Zarbin\Seo\Support\AttributeReader;
 use Zarbin\Seo\Support\CommerceConfig;
+use Zarbin\Seo\Support\CommerceFieldResolver;
 use Zarbin\Seo\Support\Text;
 
 final class CommerceDataResolver
@@ -42,6 +43,7 @@ final class CommerceDataResolver
 
     public function __construct(
         private readonly LocalizedUrlResolver $urls = new LocalizedUrlResolver,
+        private readonly CommerceFieldResolver $fields = new CommerceFieldResolver,
     ) {}
 
     public function resolve(mixed $source, ?string $locale = null): ?CommerceData
@@ -72,7 +74,7 @@ final class CommerceDataResolver
             $data = $data->with(['currency' => $currency]);
         }
 
-        return $data->hasProductIdentity() || $data->hasOffer() ? $data : null;
+        return $data->hasProductIdentity() || $data->hasOfferData() ? $data : null;
     }
 
     private function contractData(object $source, ?string $locale): CommerceData
@@ -100,7 +102,7 @@ final class CommerceDataResolver
                 continue;
             }
 
-            $value = $this->mappedValue($source, $key, $config[$key]);
+            $value = $this->mappedValue($source, $key, $config[$key], $locale);
 
             if ($this->filled($value)) {
                 $data[$key] = $value;
@@ -151,21 +153,16 @@ final class CommerceDataResolver
         return CommerceData::make($this->normalizeDescription($data));
     }
 
-    private function mappedValue(mixed $source, string $key, mixed $mapping): mixed
+    private function mappedValue(mixed $source, string $key, mixed $mapping, ?string $locale): mixed
     {
-        if (is_array($mapping)) {
-            return AttributeReader::first($source, array_values(array_filter($mapping, 'is_string')));
+        $missing = new class {};
+        $value = $this->fields->resolve($source, $mapping, $locale, $missing);
+
+        if ($value !== $missing) {
+            return $value;
         }
 
-        if (! is_string($mapping)) {
-            return $mapping;
-        }
-
-        if (AttributeReader::exists($source, $mapping)) {
-            return AttributeReader::get($source, $mapping);
-        }
-
-        return $this->literalValue($key, $mapping);
+        return is_string($mapping) ? $this->literalValue($key, $mapping) : null;
     }
 
     private function literalValue(string $key, string $value): ?string

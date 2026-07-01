@@ -62,6 +62,10 @@ final class CommerceDataTest extends TestCase
     {
         $this->assertTrue(CommerceData::make(['sku' => 'SKU-1'])->hasProductIdentity());
         $this->assertTrue(CommerceData::make(['price' => 0])->hasOffer());
+        $this->assertTrue(CommerceData::make(['price' => '0'])->hasOfferData());
+        $this->assertTrue(CommerceData::make(['price' => 0])->hasPricedOffer());
+        $this->assertTrue(CommerceData::make(['price_valid_until' => '2026-12-31'])->hasOfferData());
+        $this->assertFalse(CommerceData::make(['availability' => 'in_stock'])->hasPricedOffer());
         $this->assertFalse(CommerceData::make()->hasProductIdentity());
         $this->assertFalse(CommerceData::make()->hasOffer());
     }

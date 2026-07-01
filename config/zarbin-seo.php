@@ -157,6 +157,27 @@ return [
 
     'commerce' => [
         'enabled' => false,
+
+        /*
+         |--------------------------------------------------------------------------
+         | Offer Generation
+         |--------------------------------------------------------------------------
+         |
+         | auto:
+         |   Build Offer only when enough offer data exists, normally price.
+         |
+         | true:
+         |   Build Offer when any offer data exists.
+         |
+         | false:
+         |   Never build Offer.
+         |
+         */
+        'offer' => [
+            'enabled' => 'auto',
+            'require_price' => true,
+        ],
+
         'default_currency' => null,
         'currency_per_locale' => [],
         'availability_map' => [

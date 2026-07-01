@@ -68,6 +68,107 @@ final class ProductSchemaBuilderTest extends TestCase
         $this->assertSame(['@type' => 'Organization', 'name' => 'Zarbin'], $schema['offers']['seller']);
     }
 
+    public function test_catalog_product_without_price_renders_without_offer(): void
+    {
+        $schema = $this->builder()->build(SeoData::make([
+            'extra' => [
+                'commerce' => [
+                    'name' => 'Catalog product',
+                    'brand' => 'Sunich',
+                ],
+            ],
+        ]));
+
+        $this->assertSame('Product', $schema['@type']);
+        $this->assertSame('Catalog product', $schema['name']);
+        $this->assertArrayNotHasKey('offers', $schema);
+    }
+
+    public function test_offer_disabled_never_renders_offers(): void
+    {
+        config()->set('zarbin-seo.commerce.offer.enabled', false);
+
+        $schema = $this->builder()->build(SeoData::make([
+            'title' => 'Product',
+            'extra' => [
+                'commerce' => [
+                    'price' => 1200,
+                    'currency' => 'IRR',
+                ],
+            ],
+        ]));
+
+        $this->assertArrayNotHasKey('offers', $schema);
+    }
+
+    public function test_offer_enabled_true_renders_offer_when_any_offer_data_exists(): void
+    {
+        config()->set('zarbin-seo.commerce.offer.enabled', true);
+
+        $schema = $this->builder()->build(SeoData::make([
+            'title' => 'Product',
+            'extra' => [
+                'commerce' => [
+                    'availability' => 'in_stock',
+                ],
+            ],
+        ]));
+
+        $this->assertSame('Offer', $schema['offers']['@type']);
+        $this->assertSame('https://schema.org/InStock', $schema['offers']['availability']);
+    }
+
+    public function test_auto_offer_requires_price_by_default(): void
+    {
+        config()->set('zarbin-seo.commerce.offer.enabled', 'auto');
+        config()->set('zarbin-seo.commerce.offer.require_price', true);
+
+        $schema = $this->builder()->build(SeoData::make([
+            'title' => 'Product',
+            'extra' => [
+                'commerce' => [
+                    'availability' => 'in_stock',
+                ],
+            ],
+        ]));
+
+        $this->assertArrayNotHasKey('offers', $schema);
+    }
+
+    public function test_auto_offer_can_render_offer_without_price_when_allowed(): void
+    {
+        config()->set('zarbin-seo.commerce.offer.enabled', 'auto');
+        config()->set('zarbin-seo.commerce.offer.require_price', false);
+
+        $schema = $this->builder()->build(SeoData::make([
+            'title' => 'Product',
+            'extra' => [
+                'commerce' => [
+                    'availability' => 'in_stock',
+                ],
+            ],
+        ]));
+
+        $this->assertSame('Offer', $schema['offers']['@type']);
+        $this->assertSame('https://schema.org/InStock', $schema['offers']['availability']);
+    }
+
+    public function test_zero_price_renders_offer(): void
+    {
+        $schema = $this->builder()->build(SeoData::make([
+            'title' => 'Product',
+            'extra' => [
+                'commerce' => [
+                    'price' => 0,
+                    'currency' => 'IRR',
+                ],
+            ],
+        ]));
+
+        $this->assertSame('Offer', $schema['offers']['@type']);
+        $this->assertSame(0, $schema['offers']['price']);
+    }
+
     public function test_includes_aggregate_rating_when_rating_and_review_count_exist(): void
     {
         $schema = $this->builder()->build(SeoData::make([
