@@ -16,11 +16,14 @@ final class PublishedViewsSmokeTest extends TestCase
         $this->registerUiRouteNames();
 
         $this->assertTrue(view()->exists('zarbin-seo::ui.layout'));
+        $this->assertTrue(view()->exists('zarbin-seo::ui.standalone'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.dashboard'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.routes.index'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.routes.edit'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.models.index'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.models.edit'));
+        $this->assertTrue(view()->exists('zarbin-seo::ui.partials.shell'));
+        $this->assertTrue(view()->exists('zarbin-seo::ui.partials.styles'));
 
         $this->assertIsString(view('zarbin-seo::ui.dashboard', [
             'status' => [

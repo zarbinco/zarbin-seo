@@ -12,6 +12,16 @@ return [
         'aria' => 'ناوبری SEO',
     ],
 
+    'layout' => [
+        'standalone_title' => 'Zarbin SEO',
+        'host_missing' => 'layout میزبان در دسترس نیست؛ layout داخلی پکیج استفاده می‌شود.',
+    ],
+
+    'direction' => [
+        'rtl' => 'راست به چپ',
+        'ltr' => 'چپ به راست',
+    ],
+
     'dashboard' => [
         'title' => 'Zarbin SEO',
         'description' => 'مدیریت وضعیت SEO و overrideهای مسیرها.',

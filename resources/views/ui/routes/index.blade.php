@@ -7,14 +7,14 @@
         </div>
     @endunless
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
         <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.title') }}</h1>
         <p>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.description') }}</p>
 
         @if($routes === [])
             <p>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.empty') }}</p>
         @else
-            <table>
+            <table dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
                 <thead>
                 <tr>
                     <th>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.status') }}</th>
@@ -37,7 +37,7 @@
                             </span>
                             {{ $item->statusLabel() }}
                         </td>
-                        <td><code>{{ $item->key }}</code></td>
+                        <td><code dir="ltr">{{ $item->key }}</code></td>
                         <td>{{ $item->label ?: '-' }}</td>
                         <td>{{ $item->locale ?: '-' }}</td>
                         <td>{{ $missing === [] ? '-' : implode(', ', $missing) }}</td>

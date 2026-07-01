@@ -20,6 +20,7 @@ use Zarbin\Seo\Support\SeoFormFields;
 use Zarbin\Seo\Support\SeoInventory;
 use Zarbin\Seo\Support\SeoUiAuthorization;
 use Zarbin\Seo\Support\UiConfig;
+use Zarbin\Seo\Support\UiDirection;
 use Zarbin\Seo\Support\UiTranslator;
 
 final class SeoUiController
@@ -36,7 +37,7 @@ final class SeoUiController
     {
         SeoUiAuthorization::authorize();
 
-        return view('zarbin-seo::ui.dashboard', [
+        return view('zarbin-seo::ui.dashboard', array_replace([
             'status' => [
                 'ui_enabled' => UiConfig::enabled(),
                 'database_overrides_enabled' => $this->repository->enabled(),
@@ -49,30 +50,30 @@ final class SeoUiController
             'databaseReady' => $this->databaseReady(),
             'modelsEnabled' => UiConfig::modelInventoryEnabled(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
-        ]);
+        ], $this->uiViewData(null, UiTranslator::get('dashboard.title'))));
     }
 
     public function routes(): View
     {
         SeoUiAuthorization::authorize();
 
-        return view('zarbin-seo::ui.routes.index', [
+        return view('zarbin-seo::ui.routes.index', array_replace([
             'routes' => $this->inventory->routes(),
             'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
-        ]);
+        ], $this->uiViewData(null, UiTranslator::get('routes.title'))));
     }
 
     public function models(): View
     {
         SeoUiAuthorization::authorize();
 
-        return view('zarbin-seo::ui.models.index', [
+        return view('zarbin-seo::ui.models.index', array_replace([
             'models' => $this->inventory->models(),
             'modelsEnabled' => UiConfig::modelInventoryEnabled(),
             'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
-        ]);
+        ], $this->uiViewData(null, UiTranslator::get('models.title'))));
     }
 
     public function editRoute(Request $request): View
@@ -88,7 +89,7 @@ final class SeoUiController
         $override = $this->repository->findForRoute($routeName, $locale);
         $previewHtml = seo()->renderer()->render($resolved);
 
-        return view('zarbin-seo::ui.routes.edit', [
+        return view('zarbin-seo::ui.routes.edit', array_replace([
             'routeName' => $routeName,
             'locale' => $locale,
             'resolved' => $resolved,
@@ -101,7 +102,7 @@ final class SeoUiController
             'previewHtml' => $previewHtml,
             'rawHtmlPreview' => $previewHtml,
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
-        ]);
+        ], $this->uiViewData($locale, UiTranslator::get('routes.edit_title'))));
     }
 
     public function updateRoute(Request $request): RedirectResponse
@@ -153,7 +154,7 @@ final class SeoUiController
         $override = $this->repository->findForSource($context['model'], $context['locale']);
         $previewHtml = seo()->renderer()->render($resolved);
 
-        return view('zarbin-seo::ui.models.edit', [
+        return view('zarbin-seo::ui.models.edit', array_replace([
             'model' => $context['model'],
             'modelClass' => $context['modelClass'],
             'modelKey' => $context['modelKey'],
@@ -171,7 +172,7 @@ final class SeoUiController
             'previewHtml' => $previewHtml,
             'rawHtmlPreview' => $previewHtml,
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
-        ]);
+        ], $this->uiViewData($context['locale'], UiTranslator::get('models.edit_title'))));
     }
 
     public function updateModel(Request $request): RedirectResponse
@@ -248,6 +249,25 @@ final class SeoUiController
     private function databaseReady(): bool
     {
         return $this->repository->enabled() && $this->repository->tableExists();
+    }
+
+    /**
+     * @return array{uiDirection: string, uiDir: string, uiLang: string, uiIsRtl: bool, uiTextStart: string, uiTextEnd: string, uiLocale: ?string, pageTitle: string}
+     */
+    private function uiViewData(?string $locale, string $pageTitle): array
+    {
+        $attributes = UiDirection::htmlAttributes($locale);
+
+        return [
+            'uiDirection' => $attributes['dir'],
+            'uiDir' => $attributes['dir'],
+            'uiLang' => $attributes['lang'],
+            'uiIsRtl' => $attributes['dir'] === 'rtl',
+            'uiTextStart' => UiDirection::textAlignStart($locale),
+            'uiTextEnd' => UiDirection::textAlignEnd($locale),
+            'uiLocale' => $locale,
+            'pageTitle' => $pageTitle,
+        ];
     }
 
     /**

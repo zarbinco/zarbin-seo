@@ -485,6 +485,17 @@ The UI is disabled by default. It edits database override records and has no Liv
     'path' => 'admin/seo',
     'middleware' => ['web', 'auth'],
     'gate' => 'viewZarbinSeo',
+    'layout' => [
+        'mode' => 'standalone',
+        'view' => null,
+        'section' => 'content',
+        'title_section' => 'title',
+    ],
+    'direction' => [
+        'mode' => 'auto',
+        'rtl_locales' => ['fa', 'ar', 'he', 'ur', 'ku', 'ckb', 'ps', 'sd', 'yi'],
+        'fallback' => 'ltr',
+    ],
     'completion' => [
         'required' => ['title', 'description', 'canonical', 'robots'],
         'recommended' => ['image'],
@@ -518,6 +529,21 @@ php artisan vendor:publish --tag=zarbin-seo-translations
 ```
 
 The route edit screen and embeddable form show a search-result-style preview for the SEO title, canonical URL, and meta description, plus the raw generated HTML preview. The search preview is a visual approximation for editing comfort; it is not a ranking or snippet-display guarantee.
+
+By default, the UI uses the package's standalone layout. To render it inside your application's admin layout, switch to host mode:
+
+```php
+'ui' => [
+    'layout' => [
+        'mode' => 'host',
+        'view' => 'layouts.admin',
+        'section' => 'content',
+        'title_section' => 'title',
+    ],
+],
+```
+
+Direction is locale-aware by default. `direction.mode` accepts `auto`, `rtl`, or `ltr`; in auto mode Persian, Arabic, Hebrew, Urdu, Kurdish, Central Kurdish, Pashto, Sindhi, and Yiddish render RTL by default, while English and normal LTR locales render LTR. URLs, canonical inputs, and raw HTML/code previews remain LTR for readability.
 
 Model and holder inventory is opt-in. The package does not crawl every model class and does not run `Model::query()->get()` automatically. To list products, posts, pages, or holder-like models in the dedicated UI, enable model inventory globally and provide an explicit source for each configured model:
 

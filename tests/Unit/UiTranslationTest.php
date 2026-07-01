@@ -34,6 +34,14 @@ final class UiTranslationTest extends TestCase
         $this->assertSame('عنوان SEO', __('zarbin-seo::ui.fields.title.label'));
     }
 
+    public function test_layout_and_direction_translations_exist(): void
+    {
+        $this->app->setLocale('en');
+
+        $this->assertSame('Zarbin SEO', __('zarbin-seo::ui.layout.standalone_title'));
+        $this->assertSame('Right to left', __('zarbin-seo::ui.direction.rtl'));
+    }
+
     public function test_missing_translation_helper_falls_back_to_humanized_key(): void
     {
         $this->assertSame('Missing Key', UiTranslator::get('missing.key'));

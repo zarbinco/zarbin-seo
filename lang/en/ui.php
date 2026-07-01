@@ -12,6 +12,16 @@ return [
         'aria' => 'SEO navigation',
     ],
 
+    'layout' => [
+        'standalone_title' => 'Zarbin SEO',
+        'host_missing' => 'Host layout is not available. Falling back to the package layout.',
+    ],
+
+    'direction' => [
+        'rtl' => 'Right to left',
+        'ltr' => 'Left to right',
+    ],
+
     'dashboard' => [
         'title' => 'Zarbin SEO',
         'description' => 'Manage SEO readiness and route overrides.',

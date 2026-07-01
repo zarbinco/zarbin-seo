@@ -11,17 +11,17 @@
         </div>
     @endunless
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current($locale ?? null) }}">
         <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('models.edit_title') }}</h1>
         <p>
             {{ $sourceLabel ?? $modelClass }}
             -
             {{ $modelLabel ?? $modelKey }}
             <br>
-            <code>{{ $modelClass }}</code>
+            <code dir="ltr">{{ $modelClass }}</code>
             <br>
             {{ \Zarbin\Seo\Support\UiTranslator::get('models.key') }}:
-            <code>{{ $modelKey }}</code>{{ $locale ? ' - '.$locale : '' }}
+            <code dir="ltr">{{ $modelKey }}</code>{{ $locale ? ' - '.$locale : '' }}
         </p>
 
         <form method="POST" action="{{ route($routeNamePrefix.'models.update') }}">

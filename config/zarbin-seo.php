@@ -212,6 +212,78 @@ return [
         'preset' => 'unstyled',
         'database_required' => true,
         'show_preview' => true,
+        'layout' => [
+            /*
+             * standalone:
+             *   Use the package's built-in UI layout.
+             *
+             * host:
+             *   Render package UI content inside a host application layout.
+             */
+            'mode' => 'standalone',
+
+            /*
+             * Host layout view name, used only when mode = host.
+             *
+             * Example:
+             *   layouts.admin
+             *   admin.layouts.app
+             */
+            'view' => null,
+
+            /*
+             * Section name used by host layout.
+             * The package UI content will be pushed into this section.
+             *
+             * Example:
+             *   content
+             *   main
+             */
+            'section' => 'content',
+
+            /*
+             * Optional page title section/variable.
+             */
+            'title_section' => 'title',
+
+            /*
+             * Data passed to the host layout.
+             */
+            'data' => [],
+        ],
+        'direction' => [
+            /*
+             * auto:
+             *   Detect from current app locale.
+             *
+             * rtl:
+             *   Force RTL.
+             *
+             * ltr:
+             *   Force LTR.
+             */
+            'mode' => 'auto',
+
+            /*
+             * Locales that should render RTL in auto mode.
+             */
+            'rtl_locales' => [
+                'fa',
+                'ar',
+                'he',
+                'ur',
+                'ku',
+                'ckb',
+                'ps',
+                'sd',
+                'yi',
+            ],
+
+            /*
+             * Default direction if locale is unknown.
+             */
+            'fallback' => 'ltr',
+        ],
         'preview' => [
             'title_limit' => 60,
             'description_limit' => 160,

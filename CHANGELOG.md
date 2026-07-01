@@ -6,6 +6,8 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added host admin layout integration for the optional Blade UI.
+- Added locale-aware RTL/LTR direction support for the optional Blade UI.
 - Added opt-in model and holder inventory for the optional Blade UI.
 - Added model SEO edit screens backed by database overrides.
 - Added safe model inventory source handling.
@@ -24,6 +26,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- UI views now expose direction-aware layout variables for easier host integration.
 - UI inventory can now combine route-only and configured model SEO items.
 - Replaced hard-coded UI labels, hints, buttons, warnings, and messages with translation keys.
 - Product schema can now be generated without Offer for catalog/company product pages.

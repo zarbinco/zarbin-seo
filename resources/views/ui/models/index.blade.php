@@ -9,7 +9,7 @@
         </div>
     @endunless
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
         <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('models.title') }}</h1>
         <p>{{ \Zarbin\Seo\Support\UiTranslator::get('models.description') }}</p>
 
@@ -18,7 +18,7 @@
         @elseif($models === [])
             <p>{{ \Zarbin\Seo\Support\UiTranslator::get('models.empty') }}</p>
         @else
-            <table>
+            <table dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
                 <thead>
                 <tr>
                     <th>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.status') }}</th>
@@ -44,7 +44,7 @@
                         </td>
                         <td>{{ $item->meta['source_label'] ?? $item->meta['model_class'] ?? '-' }}</td>
                         <td>{{ $item->label ?: '-' }}</td>
-                        <td><code>{{ $item->meta['model_key'] ?? $item->key }}</code></td>
+                        <td><code dir="ltr">{{ $item->meta['model_key'] ?? $item->key }}</code></td>
                         <td>{{ $item->locale ?: '-' }}</td>
                         <td>{{ $missing === [] ? '-' : implode(', ', $missing) }}</td>
                         <td>{{ $warnings === [] ? '-' : implode(', ', $warnings) }}</td>

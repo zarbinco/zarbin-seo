@@ -39,6 +39,39 @@ Route UI فعلا برای مدیریت overrideهای routeهای تعریف‌
 
 field مربوط به robots به صورت dropdown با presetهای رایج نمایش داده می‌شود. گزینه‌ها از `ui.robots_options` می‌آیند و viewهای Blade همچنان قابل publish و سفارشی‌سازی هستند.
 
+## اتصال به layout ادمین پروژه
+
+UI به‌صورت پیش‌فرض با layout داخلی پکیج نمایش داده می‌شود. اگر پروژه شما layout ادمین خودش را دارد، می‌توانید UI را داخل همان layout رندر کنید:
+
+```php
+'ui' => [
+    'layout' => [
+        'mode' => 'host',
+        'view' => 'layouts.admin',
+        'section' => 'content',
+        'title_section' => 'title',
+    ],
+],
+```
+
+اگر `mode` روی `host` باشد ولی view معتبر نباشد، پکیج به layout داخلی خودش برمی‌گردد تا UI نشکند.
+
+## جهت RTL/LTR
+
+جهت UI به‌صورت پیش‌فرض `auto` است. برای localeهای فارسی، عربی، عبری، اردو، کردی و مشابه، UI به صورت RTL نمایش داده می‌شود و برای انگلیسی و زبان‌های LTR، جهت LTR می‌ماند.
+
+```php
+'ui' => [
+    'direction' => [
+        'mode' => 'auto', // auto | rtl | ltr
+        'rtl_locales' => ['fa', 'ar', 'he', 'ur', 'ku', 'ckb', 'ps', 'sd', 'yi'],
+        'fallback' => 'ltr',
+    ],
+],
+```
+
+آدرس‌ها، canonical و raw HTML/code preview عمدا LTR می‌مانند تا خواندن URL و کد راحت‌تر باشد.
+
 ## inventory مدل‌ها
 
 Inventory مدل‌ها به‌صورت پیش‌فرض غیرفعال است و فقط وقتی کار می‌کند که هم `ui.inventory.models.enabled` فعال باشد و هم برای هر مدل، `ui.enabled` و یک `source` صریح تعریف شده باشد.

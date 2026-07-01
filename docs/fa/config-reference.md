@@ -72,6 +72,17 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
 
 ```php
 'ui' => [
+    'layout' => [
+        'mode' => 'standalone', // standalone | host
+        'view' => null,
+        'section' => 'content',
+        'title_section' => 'title',
+    ],
+    'direction' => [
+        'mode' => 'auto', // auto | rtl | ltr
+        'rtl_locales' => ['fa', 'ar', 'he', 'ur', 'ku', 'ckb', 'ps', 'sd', 'yi'],
+        'fallback' => 'ltr',
+    ],
     'completion' => [
         'required' => ['title', 'description', 'canonical', 'robots'],
         'recommended' => ['image'],
@@ -100,6 +111,8 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
 `completion.required` مشخص می‌کند route در UI چه زمانی کامل است. `completion.recommended` فقط warning نشان می‌دهد. `robots_options` گزینه‌های dropdown robots را کنترل می‌کند. `preview` حد طول عنوان و توضیحات را برای هشدارهای پیش‌نمایش نتیجه جستجو مشخص می‌کند.
 
 `inventory.routes.enabled` به صورت پیش‌فرض فعال است. `inventory.models.enabled` به صورت پیش‌فرض غیرفعال است و فقط مدل‌هایی را نشان می‌دهد که در config خودشان `ui.enabled` و `ui.source` صریح داشته باشند؛ پکیج مدل‌ها را خودکار crawl نمی‌کند.
+
+`layout.mode` در حالت پیش‌فرض `standalone` است. برای استفاده از layout ادمین پروژه، مقدار را `host` کنید و `layout.view` و `layout.section` را مشخص کنید. `direction.mode` هم می‌تواند `auto`، `rtl` یا `ltr` باشد؛ در حالت `auto` localeهایی مثل `fa` و `ar` به صورت RTL و `en` به صورت LTR نمایش داده می‌شوند.
 
 متن‌های UI از فایل‌های translation پکیج می‌آیند و با این دستور قابل publish هستند:
 

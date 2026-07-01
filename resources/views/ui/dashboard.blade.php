@@ -12,7 +12,7 @@
         </div>
     @endunless
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
         <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.title') }}</h1>
         <p>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.description') }}</p>
 
@@ -28,10 +28,10 @@
         </table>
     </section>
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
         <h2>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.route_overrides') }}</h2>
         <p>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.route_overrides_description') }}</p>
-        <table>
+        <table dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
             <tbody>
                 <tr>
                     <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.routes_total') }}</th>
@@ -51,10 +51,10 @@
     </section>
 
     @if($modelsEnabled)
-        <section>
+        <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
             <h2>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.model_overrides') }}</h2>
             <p>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.model_overrides_description') }}</p>
-            <table>
+            <table dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current() }}">
                 <tbody>
                     <tr>
                         <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.models_total') }}</th>

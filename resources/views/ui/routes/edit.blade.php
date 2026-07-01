@@ -11,9 +11,9 @@
         </div>
     @endunless
 
-    <section>
+    <section dir="{{ $uiDir ?? \Zarbin\Seo\Support\UiDirection::current($locale ?? null) }}">
         <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('routes.edit_title') }}</h1>
-        <p><code>{{ $routeName }}</code>{{ $locale ? ' · '.$locale : '' }}</p>
+        <p><code dir="ltr">{{ $routeName }}</code>{{ $locale ? ' - '.$locale : '' }}</p>
 
         <form method="POST" action="{{ route($routeNamePrefix.'routes.update') }}">
             @csrf
