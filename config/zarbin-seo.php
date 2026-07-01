@@ -212,6 +212,41 @@ return [
         'preset' => 'unstyled',
         'database_required' => true,
         'show_preview' => true,
+        'completion' => [
+            'enabled' => true,
+
+            /*
+             * Required fields for a route/page to be considered complete.
+             * Supported keys:
+             * title
+             * description
+             * canonical
+             * robots
+             * image
+             * type
+             */
+            'required' => [
+                'title',
+                'description',
+                'canonical',
+                'robots',
+            ],
+
+            /*
+             * Optional warning fields.
+             * Missing these fields should not make the item incomplete,
+             * but should be shown as a warning in the UI.
+             */
+            'recommended' => [
+                'image',
+            ],
+        ],
+        'robots_options' => [
+            'index, follow' => 'Index, Follow',
+            'noindex, follow' => 'Noindex, Follow',
+            'index, nofollow' => 'Index, Nofollow',
+            'noindex, nofollow' => 'Noindex, Nofollow',
+        ],
         'routes' => [
             'dashboard' => true,
             'route_overrides' => true,

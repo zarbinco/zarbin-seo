@@ -23,6 +23,7 @@ final class FormComponentTest extends TestCase
         $this->assertStringContainsString('name="seo[description]"', $html);
         $this->assertStringContainsString('name="seo[canonical]"', $html);
         $this->assertStringContainsString('name="seo[robots]"', $html);
+        $this->assertStringContainsString('<select', $html);
     }
 
     public function test_form_component_shows_resolved_values(): void
@@ -52,6 +53,25 @@ final class FormComponentTest extends TestCase
         ]);
 
         $this->assertStringContainsString('value="Override title"', $html);
+    }
+
+    public function test_form_component_preserves_robots_select_value(): void
+    {
+        $this->enableSeoMetaDatabase();
+        $this->createSeoMetaTable();
+        $model = new FormComponentModel('1');
+
+        (new SeoMetaRepository)->saveForSource($model, [
+            'robots' => ['noindex', 'follow'],
+        ], 'fa');
+
+        $html = Blade::render('<x-zarbin-seo::form :source="$model" locale="fa" />', [
+            'model' => $model,
+        ]);
+
+        $this->assertStringContainsString('value="noindex, follow"', $html);
+        $this->assertStringContainsString('Noindex, Follow', $html);
+        $this->assertStringContainsString('selected', $html);
     }
 
     public function test_source_as_route_string_works(): void

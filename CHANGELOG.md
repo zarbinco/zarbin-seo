@@ -6,6 +6,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added SEO UI page inventory with completion status indicators.
+- Added configurable SEO completion checks.
+- Added robots dropdown support to the optional Blade UI.
 - Added translation-aware and relation-aware commerce field resolution.
 - Added optional Offer generation controls for Product schema.
 - Added configurable sitemap XML response content type.

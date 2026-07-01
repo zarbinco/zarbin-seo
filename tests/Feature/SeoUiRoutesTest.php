@@ -42,6 +42,11 @@ abstract class SeoUiEnabledTestCase extends TestCase
             'home' => [
                 'title' => 'Home',
                 'description' => 'Welcome home',
+                'canonical' => 'https://example.test/home',
+                'robots' => 'index, follow',
+            ],
+            'about' => [
+                'title' => 'About',
             ],
         ]);
     }
@@ -58,6 +63,11 @@ abstract class SeoUiEnabledTestCase extends TestCase
             'home' => [
                 'title' => 'Home',
                 'description' => 'Welcome home',
+                'canonical' => 'https://example.test/home',
+                'robots' => 'index, follow',
+            ],
+            'about' => [
+                'title' => 'About',
             ],
         ]);
     }
@@ -81,11 +91,44 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
         $this->get('/admin/seo/routes')->assertOk()->assertSee('home');
     }
 
+    public function test_routes_index_shows_completion_status_and_missing_fields(): void
+    {
+        $this->createSeoMetaTable();
+
+        $this->get('/admin/seo/routes')
+            ->assertOk()
+            ->assertSee('✓', false)
+            ->assertSee('×', false)
+            ->assertSee('Complete')
+            ->assertSee('Incomplete')
+            ->assertSee('description')
+            ->assertSee('canonical');
+    }
+
     public function test_edit_route_returns_200_for_configured_route(): void
     {
         $this->createSeoMetaTable();
 
-        $this->get('/admin/seo/routes/edit?route=home')->assertOk()->assertSee('Edit Route Override');
+        $this->get('/admin/seo/routes/edit?route=home')
+            ->assertOk()
+            ->assertSee('Edit Route Override')
+            ->assertSee('<select', false)
+            ->assertSee('name="seo[robots]"', false)
+            ->assertSee('Index, Follow');
+    }
+
+    public function test_edit_route_preserves_saved_robots_select_value(): void
+    {
+        $this->createSeoMetaTable();
+        (new SeoMetaRepository)->saveForRoute('home', [
+            'robots' => ['noindex', 'follow'],
+        ]);
+
+        $this->get('/admin/seo/routes/edit?route=home')
+            ->assertOk()
+            ->assertSee('Noindex, Follow')
+            ->assertSee('value="noindex, follow"', false)
+            ->assertSee('selected', false);
     }
 
     public function test_update_route_saves_route_override(): void
@@ -97,6 +140,7 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
             'locale' => 'fa',
             'seo' => [
                 'title' => 'Manual home title',
+                'robots' => 'noindex, follow',
                 'extra' => '{"note":"saved"}',
             ],
         ])->assertRedirect();
@@ -104,6 +148,7 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
         $meta = (new SeoMetaRepository)->findForRoute('home', 'fa');
 
         $this->assertSame('Manual home title', $meta?->title);
+        $this->assertSame(['noindex', 'follow'], $meta?->robots);
         $this->assertSame(['note' => 'saved'], $meta?->extra);
     }
 

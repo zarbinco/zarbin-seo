@@ -13,11 +13,14 @@
         table { width: 100%; border-collapse: collapse; background: #fff; }
         th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
         label { display: block; font-weight: 600; margin-bottom: 6px; }
-        input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 10px; font: inherit; }
+        input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 10px; font: inherit; }
         textarea { min-height: 90px; resize: vertical; }
         .zarbin-seo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
         .zarbin-seo-field { margin-bottom: 16px; }
         .zarbin-seo-help { color: #6b7280; font-size: 0.9rem; margin-top: 4px; }
+        .zarbin-seo-status { font-weight: 700; }
+        .zarbin-seo-status-complete { color: #166534; }
+        .zarbin-seo-status-incomplete { color: #991b1b; }
         .zarbin-seo-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         button, .zarbin-seo-button { border: 0; border-radius: 6px; background: #111827; color: #fff; padding: 9px 13px; font: inherit; cursor: pointer; text-decoration: none; display: inline-block; }
         button[disabled] { opacity: .5; cursor: not-allowed; }

@@ -70,6 +70,21 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
 
 UI اختیاری Blade: path، middleware، gate، route enablement و preview.
 
+```php
+'ui' => [
+    'completion' => [
+        'required' => ['title', 'description', 'canonical', 'robots'],
+        'recommended' => ['image'],
+    ],
+    'robots_options' => [
+        'index, follow' => 'Index, Follow',
+        'noindex, follow' => 'Noindex, Follow',
+    ],
+],
+```
+
+`completion.required` مشخص می‌کند route در UI چه زمانی کامل است. `completion.recommended` فقط warning نشان می‌دهد. `robots_options` گزینه‌های dropdown robots را کنترل می‌کند.
+
 ## commerce
 
 ```php

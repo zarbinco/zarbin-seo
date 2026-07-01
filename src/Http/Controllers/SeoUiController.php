@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use JsonException;
 use Zarbin\Seo\Repositories\SeoMetaRepository;
 use Zarbin\Seo\Support\SeoFormFields;
+use Zarbin\Seo\Support\SeoInventory;
 use Zarbin\Seo\Support\SeoUiAuthorization;
 use Zarbin\Seo\Support\UiConfig;
 
@@ -19,6 +20,7 @@ final class SeoUiController
 {
     public function __construct(
         private readonly SeoMetaRepository $repository = new SeoMetaRepository,
+        private readonly SeoInventory $inventory = new SeoInventory,
     ) {}
 
     public function dashboard(): View
@@ -34,6 +36,7 @@ final class SeoUiController
                 'robots_enabled' => (bool) config('zarbin-seo.features.robots_txt', true),
                 'localization_enabled' => (bool) config('zarbin-seo.localization.enabled', false),
             ],
+            'inventoryStats' => $this->inventoryStats(),
             'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ]);
@@ -43,21 +46,8 @@ final class SeoUiController
     {
         SeoUiAuthorization::authorize();
 
-        $routes = [];
-
-        foreach ($this->configuredRoutes() as $routeName => $config) {
-            $resolved = seo()->resolve($routeName);
-
-            $routes[] = [
-                'name' => $routeName,
-                'configured_title' => is_array($config) ? ($config['title'] ?? null) : null,
-                'resolved_title' => $resolved->title,
-                'override_exists' => $this->repository->findForRoute($routeName) !== null,
-            ];
-        }
-
         return view('zarbin-seo::ui.routes.index', [
-            'routes' => $routes,
+            'routes' => $this->inventory->routes(),
             'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ]);
@@ -145,6 +135,22 @@ final class SeoUiController
     private function databaseReady(): bool
     {
         return $this->repository->enabled() && $this->repository->tableExists();
+    }
+
+    /**
+     * @return array{total: int, complete: int, incomplete: int}
+     */
+    private function inventoryStats(): array
+    {
+        $items = $this->inventory->routes();
+        $complete = count(array_filter($items, fn ($item): bool => $item->complete));
+        $total = count($items);
+
+        return [
+            'total' => $total,
+            'complete' => $complete,
+            'incomplete' => $total - $complete,
+        ];
     }
 
     private function locale(Request $request): ?string

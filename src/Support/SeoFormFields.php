@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zarbin\Seo\Support;
 
 use JsonException;
+use Throwable;
 use Zarbin\Seo\Data\SeoData;
 
 final class SeoFormFields
@@ -18,7 +19,7 @@ final class SeoFormFields
             'title' => ['key' => 'title', 'label' => 'SEO Title', 'type' => 'text', 'help' => 'Manual title override.'],
             'description' => ['key' => 'description', 'label' => 'SEO Description', 'type' => 'textarea', 'rows' => 3, 'help' => 'Search result description.'],
             'canonical' => ['key' => 'canonical', 'label' => 'Canonical URL', 'type' => 'url', 'help' => 'Absolute canonical URL.'],
-            'robots' => ['key' => 'robots', 'label' => 'Robots', 'type' => 'text', 'help' => 'Example: index, follow'],
+            'robots' => ['key' => 'robots', 'label' => 'Robots', 'type' => 'select', 'options' => self::robotsOptions(), 'help' => 'Choose a common robots directive.'],
             'image' => ['key' => 'image', 'label' => 'Image URL', 'type' => 'url', 'help' => 'Default social image URL.'],
             'og_title' => ['key' => 'og_title', 'label' => 'Open Graph Title', 'type' => 'text'],
             'og_description' => ['key' => 'og_description', 'label' => 'Open Graph Description', 'type' => 'textarea', 'rows' => 3],
@@ -110,6 +111,57 @@ final class SeoFormFields
     public static function inputName(string $field): string
     {
         return "seo[{$field}]";
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function robotsOptions(): array
+    {
+        $defaults = [
+            'index, follow' => 'Index, Follow',
+            'noindex, follow' => 'Noindex, Follow',
+            'index, nofollow' => 'Index, Nofollow',
+            'noindex, nofollow' => 'Noindex, Nofollow',
+        ];
+
+        if (! function_exists('config')) {
+            return $defaults;
+        }
+
+        try {
+            $configured = config('zarbin-seo.ui.robots_options', $defaults);
+        } catch (Throwable) {
+            return $defaults;
+        }
+
+        if (! is_array($configured)) {
+            return $defaults;
+        }
+
+        $normalized = [];
+
+        foreach ($configured as $value => $label) {
+            if (is_int($value)) {
+                $value = $label;
+            }
+
+            if (! is_scalar($value)) {
+                continue;
+            }
+
+            $value = trim((string) $value);
+
+            if ($value === '') {
+                continue;
+            }
+
+            $normalized[$value] = is_scalar($label) && trim((string) $label) !== ''
+                ? trim((string) $label)
+                : $value;
+        }
+
+        return $normalized === [] ? $defaults : array_replace($defaults, $normalized);
     }
 
     /**

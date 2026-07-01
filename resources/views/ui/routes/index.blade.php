@@ -16,22 +16,35 @@
             <table>
                 <thead>
                 <tr>
+                    <th>Status</th>
                     <th>Route</th>
-                    <th>Configured title</th>
-                    <th>Resolved title</th>
-                    <th>Override</th>
+                    <th>Label</th>
+                    <th>Locale</th>
+                    <th>Missing required</th>
+                    <th>Warnings</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($routes as $route)
+                @foreach($routes as $item)
                     <tr>
-                        <td><code>{{ $route['name'] }}</code></td>
-                        <td>{{ $route['configured_title'] ?: '—' }}</td>
-                        <td>{{ $route['resolved_title'] ?: '—' }}</td>
-                        <td>{{ $route['override_exists'] ? 'Saved' : 'None' }}</td>
                         <td>
-                            <a class="zarbin-seo-button zarbin-seo-button-secondary" href="{{ route($routeNamePrefix.'routes.edit', ['route' => $route['name']]) }}">Edit</a>
+                            <span class="zarbin-seo-status {{ $item->complete ? 'zarbin-seo-status-complete' : 'zarbin-seo-status-incomplete' }}" aria-label="{{ $item->statusLabel() }}">
+                                {{ $item->statusSymbol() }}
+                            </span>
+                            {{ $item->statusLabel() }}
+                        </td>
+                        <td><code>{{ $item->key }}</code></td>
+                        <td>{{ $item->label ?: '—' }}</td>
+                        <td>{{ $item->locale ?: '—' }}</td>
+                        <td>{{ $item->missing === [] ? '—' : implode(', ', $item->missing) }}</td>
+                        <td>{{ $item->warnings === [] ? '—' : implode(', ', $item->warnings) }}</td>
+                        <td>
+                            @if($item->editUrl)
+                                <a class="zarbin-seo-button zarbin-seo-button-secondary" href="{{ $item->editUrl }}">Edit</a>
+                            @else
+                                <span class="zarbin-seo-help">Edit route unavailable</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

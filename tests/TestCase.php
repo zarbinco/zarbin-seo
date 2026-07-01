@@ -10,6 +10,15 @@ use Zarbin\Seo\ZarbinSeoServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        view()->replaceNamespace('zarbin-seo', [
+            dirname(__DIR__).'/resources/views',
+        ]);
+    }
+
     /**
      * @param  Application  $app
      * @return array<int, class-string>

@@ -484,6 +484,10 @@ The UI is disabled by default. It edits database override records and has no Liv
     'path' => 'admin/seo',
     'middleware' => ['web', 'auth'],
     'gate' => 'viewZarbinSeo',
+    'completion' => [
+        'required' => ['title', 'description', 'canonical', 'robots'],
+        'recommended' => ['image'],
+    ],
 ],
 ```
 
@@ -493,6 +497,8 @@ Dedicated route UI:
 GET /admin/seo
 GET /admin/seo/routes
 ```
+
+The route UI lists configured route-only pages and shows completion status. `✓` means all required SEO fields are present; `×` means one or more required fields are missing. Required and recommended fields are configurable under `ui.completion`, and recommended misses appear as warnings only. The robots field is a dropdown with common presets from `ui.robots_options`; published Blade views can still be customized.
 
 Embeddable form for your own admin panel:
 
