@@ -1,24 +1,24 @@
-@extends('zarbin-seo::ui.layout', ['title' => 'Zarbin SEO', 'routeNamePrefix' => $routeNamePrefix])
+@extends('zarbin-seo::ui.layout', ['title' => \Zarbin\Seo\Support\UiTranslator::get('dashboard.title'), 'routeNamePrefix' => $routeNamePrefix])
 
 @section('content')
     @php($inventoryStats = $inventoryStats ?? ['total' => 0, 'complete' => 0, 'incomplete' => 0])
 
     @unless($databaseReady)
         <div class="zarbin-seo-alert">
-            Database overrides are not ready. Enable database overrides and run the SEO meta migration before saving UI changes.
+            {{ \Zarbin\Seo\Support\UiTranslator::get('form.database_warning') }}
         </div>
     @endunless
 
     <section>
-        <h1>Zarbin SEO</h1>
-        <p>Package status and diagnostics.</p>
+        <h1>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.title') }}</h1>
+        <p>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.description') }}</p>
 
         <table>
             <tbody>
             @foreach($status as $label => $value)
                 <tr>
-                    <th>{{ str_replace('_', ' ', ucfirst($label)) }}</th>
-                    <td>{{ $value ? 'Yes' : 'No' }}</td>
+                    <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.status_items.'.$label) }}</th>
+                    <td>{{ $value ? \Zarbin\Seo\Support\UiTranslator::get('dashboard.yes') : \Zarbin\Seo\Support\UiTranslator::get('dashboard.no') }}</td>
                 </tr>
             @endforeach
             </tbody>
@@ -26,24 +26,24 @@
     </section>
 
     <section>
-        <h2>Route Overrides</h2>
-        <p>Edit manual SEO overrides for configured route-only pages.</p>
+        <h2>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.route_overrides') }}</h2>
+        <p>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.route_overrides_description') }}</p>
         <table>
             <tbody>
                 <tr>
-                    <th>Total route items</th>
+                    <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.routes_total') }}</th>
                     <td>{{ $inventoryStats['total'] ?? 0 }}</td>
                 </tr>
                 <tr>
-                    <th>Complete</th>
+                    <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.routes_complete') }}</th>
                     <td>{{ $inventoryStats['complete'] ?? 0 }}</td>
                 </tr>
                 <tr>
-                    <th>Incomplete</th>
+                    <th>{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.routes_incomplete') }}</th>
                     <td>{{ $inventoryStats['incomplete'] ?? 0 }}</td>
                 </tr>
             </tbody>
         </table>
-        <a class="zarbin-seo-button" href="{{ route($routeNamePrefix.'routes.index') }}">Manage route overrides</a>
+        <a class="zarbin-seo-button" href="{{ route($routeNamePrefix.'routes.index') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('dashboard.manage_route_overrides') }}</a>
     </section>
 @endsection

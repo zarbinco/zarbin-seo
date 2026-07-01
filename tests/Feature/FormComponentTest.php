@@ -26,6 +26,42 @@ final class FormComponentTest extends TestCase
         $this->assertStringContainsString('<select', $html);
     }
 
+    public function test_form_component_renders_search_and_raw_html_previews(): void
+    {
+        config()->set('zarbin-seo.routes', [
+            'home' => [
+                'title' => 'Home title',
+                'description' => 'Home description',
+                'canonical' => 'https://example.test/home',
+                'robots' => 'index, follow',
+            ],
+        ]);
+
+        $html = Blade::render('<x-zarbin-seo::form source="home" />');
+
+        $this->assertStringContainsString('Search result preview', $html);
+        $this->assertStringContainsString('Raw HTML preview', $html);
+        $this->assertStringContainsString('Home title', $html);
+        $this->assertStringContainsString('https://example.test/home', $html);
+        $this->assertStringContainsString('Home description', $html);
+    }
+
+    public function test_form_component_renders_persian_source_data_in_preview(): void
+    {
+        $this->app->setLocale('fa');
+        $model = new FormComponentModel('1');
+        $model->title = 'محصول سن‌ایچ';
+        $model->description = 'توضیحات فارسی محصول';
+
+        $html = Blade::render('<x-zarbin-seo::form :source="$model" locale="fa" />', [
+            'model' => $model,
+        ]);
+
+        $this->assertStringContainsString('پیش‌نمایش نتیجه جستجو', $html);
+        $this->assertStringContainsString('محصول سن‌ایچ', $html);
+        $this->assertStringContainsString('توضیحات فارسی محصول', $html);
+    }
+
     public function test_form_component_shows_resolved_values(): void
     {
         $model = new FormComponentModel('1');
@@ -107,6 +143,8 @@ final class FormComponentTest extends TestCase
 final class FormComponentModel
 {
     public string $title = 'Model title';
+
+    public ?string $description = null;
 
     public function __construct(private readonly string $key) {}
 

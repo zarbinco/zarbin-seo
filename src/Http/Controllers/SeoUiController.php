@@ -11,16 +11,19 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use JsonException;
 use Zarbin\Seo\Repositories\SeoMetaRepository;
+use Zarbin\Seo\Support\SearchPreviewBuilder;
 use Zarbin\Seo\Support\SeoFormFields;
 use Zarbin\Seo\Support\SeoInventory;
 use Zarbin\Seo\Support\SeoUiAuthorization;
 use Zarbin\Seo\Support\UiConfig;
+use Zarbin\Seo\Support\UiTranslator;
 
 final class SeoUiController
 {
     public function __construct(
         private readonly SeoMetaRepository $repository = new SeoMetaRepository,
         private readonly SeoInventory $inventory = new SeoInventory,
+        private readonly SearchPreviewBuilder $preview = new SearchPreviewBuilder,
     ) {}
 
     public function dashboard(): View
@@ -64,6 +67,7 @@ final class SeoUiController
 
         $resolved = seo()->resolve($routeName, $locale);
         $override = $this->repository->findForRoute($routeName, $locale);
+        $previewHtml = seo()->renderer()->render($resolved);
 
         return view('zarbin-seo::ui.routes.edit', [
             'routeName' => $routeName,
@@ -74,7 +78,9 @@ final class SeoUiController
             'values' => SeoFormFields::values($override?->toArray() ?? [], $resolved->toArray()),
             'databaseReady' => $this->databaseReady(),
             'showPreview' => UiConfig::showPreview(),
-            'previewHtml' => seo()->renderer()->render($resolved),
+            'searchPreview' => $this->preview->build($resolved),
+            'previewHtml' => $previewHtml,
+            'rawHtmlPreview' => $previewHtml,
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ]);
     }
@@ -94,10 +100,10 @@ final class SeoUiController
         $meta = $this->repository->saveForRoute($routeName, $attributes, $locale);
 
         if ($meta === null) {
-            return back()->with('zarbin_seo_warning', 'SEO database overrides are not ready. Check the feature flags and migration.');
+            return back()->with('zarbin_seo_warning', UiTranslator::get('form.not_saved'));
         }
 
-        return back()->with('zarbin_seo_success', 'SEO override saved.');
+        return back()->with('zarbin_seo_success', UiTranslator::get('form.saved'));
     }
 
     public function deleteRoute(Request $request): RedirectResponse
@@ -113,7 +119,7 @@ final class SeoUiController
 
         return back()->with(
             $deleted ? 'zarbin_seo_success' : 'zarbin_seo_warning',
-            $deleted ? 'SEO override deleted.' : 'No SEO override was found to delete.'
+            $deleted ? UiTranslator::get('form.deleted') : UiTranslator::get('form.not_deleted')
         );
     }
 

@@ -38,17 +38,7 @@ abstract class SeoUiEnabledTestCase extends TestCase
         $app['config']->set('zarbin-seo.ui.middleware', []);
         $app['config']->set('zarbin-seo.features.database_overrides', true);
         $app['config']->set('zarbin-seo.database.enabled', true);
-        $app['config']->set('zarbin-seo.routes', [
-            'home' => [
-                'title' => 'Home',
-                'description' => 'Welcome home',
-                'canonical' => 'https://example.test/home',
-                'robots' => 'index, follow',
-            ],
-            'about' => [
-                'title' => 'About',
-            ],
-        ]);
+        $app['config']->set('zarbin-seo.routes', $this->routesConfig());
     }
 
     protected function enableUi(): void
@@ -59,7 +49,15 @@ abstract class SeoUiEnabledTestCase extends TestCase
         config()->set('zarbin-seo.ui.middleware', []);
         config()->set('zarbin-seo.features.database_overrides', true);
         config()->set('zarbin-seo.database.enabled', true);
-        config()->set('zarbin-seo.routes', [
+        config()->set('zarbin-seo.routes', $this->routesConfig());
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function routesConfig(): array
+    {
+        return [
             'home' => [
                 'title' => 'Home',
                 'description' => 'Welcome home',
@@ -69,7 +67,7 @@ abstract class SeoUiEnabledTestCase extends TestCase
             'about' => [
                 'title' => 'About',
             ],
-        ]);
+        ];
     }
 }
 
@@ -81,7 +79,10 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
     {
         $this->createSeoMetaTable();
 
-        $this->get('/admin/seo')->assertOk()->assertSee('Zarbin SEO');
+        $this->get('/admin/seo')
+            ->assertOk()
+            ->assertSee('Zarbin SEO')
+            ->assertSee('Manage SEO readiness and route overrides.');
     }
 
     public function test_routes_index_returns_200(): void
@@ -101,8 +102,8 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
             ->assertSee('×', false)
             ->assertSee('Complete')
             ->assertSee('Incomplete')
-            ->assertSee('description')
-            ->assertSee('canonical');
+            ->assertSee('Meta Description')
+            ->assertSee('Canonical URL');
     }
 
     public function test_edit_route_returns_200_for_configured_route(): void
@@ -111,10 +112,24 @@ final class SeoUiRoutesTest extends SeoUiEnabledTestCase
 
         $this->get('/admin/seo/routes/edit?route=home')
             ->assertOk()
-            ->assertSee('Edit Route Override')
+            ->assertSee('Edit SEO Route')
             ->assertSee('<select', false)
             ->assertSee('name="seo[robots]"', false)
-            ->assertSee('Index, Follow');
+            ->assertSee('Index, Follow')
+            ->assertSee('Search result preview')
+            ->assertSee('Raw HTML preview');
+    }
+
+    public function test_ui_uses_persian_translations_when_locale_is_fa(): void
+    {
+        $this->app->setLocale('fa');
+        $this->createSeoMetaTable();
+
+        $this->get('/admin/seo/routes')
+            ->assertOk()
+            ->assertSee('مسیرهای SEO')
+            ->assertSee('کامل')
+            ->assertSee('ناقص');
     }
 
     public function test_edit_route_preserves_saved_robots_select_value(): void

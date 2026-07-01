@@ -12,6 +12,6 @@
 
 @if(isset($errors) && $errors->any())
     <div class="zarbin-seo-alert zarbin-seo-alert-error">
-        <strong>There were validation errors.</strong>
+        <strong>{{ \Zarbin\Seo\Support\UiTranslator::get('form.validation_errors') }}</strong>
     </div>
 @endif

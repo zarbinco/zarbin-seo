@@ -23,7 +23,9 @@
     $values = $values ?? \Zarbin\Seo\Support\SeoFormFields::values($override?->toArray() ?? [], $resolved?->toArray() ?? []);
     $showPreview = (bool) $showPreview && \Zarbin\Seo\Support\UiConfig::showPreview();
     $previewHtml = $previewHtml ?? ($resolved === null ? '' : seo()->renderer()->render($resolved));
-    $warning = $warning ?? ($databaseReady ? null : 'SEO database overrides are not ready. Publish and run the migration, then enable database overrides.');
+    $rawHtmlPreview = $rawHtmlPreview ?? $previewHtml;
+    $searchPreview = $searchPreview ?? ($resolved === null ? null : (new \Zarbin\Seo\Support\SearchPreviewBuilder())->build($resolved));
+    $warning = $warning ?? ($databaseReady ? null : \Zarbin\Seo\Support\UiTranslator::get('form.database_setup_warning'));
     $method = strtoupper((string) $method);
 @endphp
 
@@ -49,15 +51,15 @@
 @endif
 
 <fieldset @disabled(! $databaseReady)>
-    <legend>SEO Override</legend>
+    <legend>{{ \Zarbin\Seo\Support\UiTranslator::get('form.legend') }}</legend>
     @include('zarbin-seo::components.fields', ['fields' => $fields, 'values' => $values])
 </fieldset>
 
 @if($standalone)
-        <button type="submit" @disabled(! $databaseReady)>Save SEO override</button>
+        <button type="submit" @disabled(! $databaseReady)>{{ \Zarbin\Seo\Support\UiTranslator::get('form.save') }}</button>
     </form>
 @endif
 
 @if($showPreview && $previewHtml !== '')
-    @include('zarbin-seo::components.preview', ['previewHtml' => $previewHtml])
+    @include('zarbin-seo::components.preview', ['searchPreview' => $searchPreview, 'previewHtml' => $previewHtml, 'rawHtmlPreview' => $rawHtmlPreview])
 @endif

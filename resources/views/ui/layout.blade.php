@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Zarbin SEO' }}</title>
+    <title>{{ $title ?? \Zarbin\Seo\Support\UiTranslator::get('dashboard.title') }}</title>
     <style>
         body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; color: #1f2937; background: #f8fafc; }
         header, main { max-width: 1040px; margin: 0 auto; padding: 24px; }
@@ -29,6 +29,11 @@
         .zarbin-seo-alert-success { background: #dcfce7; color: #166534; }
         .zarbin-seo-alert-error { background: #fee2e2; color: #991b1b; }
         .zarbin-seo-preview { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; min-height: 180px; }
+        .zarbin-seo-snippet { border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px; background: #fff; }
+        .zarbin-seo-snippet-title { color: #1a0dab; font-size: 1.08rem; line-height: 1.35; margin-bottom: 4px; }
+        .zarbin-seo-snippet-url { color: #047857; font-size: .92rem; overflow-wrap: anywhere; margin-bottom: 6px; }
+        .zarbin-seo-snippet-description { margin: 0; color: #374151; }
+        .zarbin-seo-preview-warnings { color: #92400e; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -37,9 +42,9 @@
     <div>
         <strong>Zarbin SEO</strong>
     </div>
-    <nav aria-label="SEO navigation">
-        <a href="{{ route($prefix.'dashboard') }}">Dashboard</a>
-        <a href="{{ route($prefix.'routes.index') }}">Routes</a>
+    <nav aria-label="{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.aria') }}">
+        <a href="{{ route($prefix.'dashboard') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.dashboard') }}</a>
+        <a href="{{ route($prefix.'routes.index') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.routes') }}</a>
     </nav>
 </header>
 <main>

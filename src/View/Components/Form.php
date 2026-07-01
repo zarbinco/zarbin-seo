@@ -9,8 +9,10 @@ use Illuminate\View\Component;
 use Zarbin\Seo\Data\SeoData;
 use Zarbin\Seo\Models\SeoMeta;
 use Zarbin\Seo\Repositories\SeoMetaRepository;
+use Zarbin\Seo\Support\SearchPreviewBuilder;
 use Zarbin\Seo\Support\SeoFormFields;
 use Zarbin\Seo\Support\UiConfig;
+use Zarbin\Seo\Support\UiTranslator;
 
 final class Form extends Component
 {
@@ -29,6 +31,7 @@ final class Form extends Component
         $resolved = $this->resolvedData();
         $override = $this->override($repository);
         $databaseReady = $repository->enabled() && $repository->tableExists();
+        $previewHtml = $resolved === null ? '' : seo()->renderer()->render($resolved);
 
         return view('zarbin-seo::components.form', [
             'source' => $this->source,
@@ -40,9 +43,11 @@ final class Form extends Component
             'fields' => SeoFormFields::fields(),
             'values' => SeoFormFields::values($override?->toArray() ?? [], $resolved?->toArray() ?? []),
             'resolved' => $resolved,
-            'previewHtml' => $resolved === null ? '' : seo()->renderer()->render($resolved),
+            'searchPreview' => $resolved === null ? null : (new SearchPreviewBuilder)->build($resolved),
+            'previewHtml' => $previewHtml,
+            'rawHtmlPreview' => $previewHtml,
             'databaseReady' => $databaseReady,
-            'warning' => $databaseReady ? null : 'SEO database overrides are not ready. Publish and run the migration, then enable database overrides.',
+            'warning' => $databaseReady ? null : UiTranslator::get('form.database_setup_warning'),
         ]);
     }
 

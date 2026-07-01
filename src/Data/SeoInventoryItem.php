@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo\Data;
 
+use Zarbin\Seo\Support\UiTranslator;
+
 final readonly class SeoInventoryItem
 {
     /**
@@ -45,11 +47,15 @@ final readonly class SeoInventoryItem
 
     public function statusLabel(): string
     {
-        return $this->complete ? 'Complete' : 'Incomplete';
+        return $this->complete
+            ? UiTranslator::get('routes.complete')
+            : UiTranslator::get('routes.incomplete');
     }
 
     public function statusSymbol(): string
     {
-        return $this->complete ? '✓' : '×';
+        return $this->complete
+            ? UiTranslator::get('status.complete_symbol')
+            : UiTranslator::get('status.incomplete_symbol');
     }
 }

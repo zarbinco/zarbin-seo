@@ -80,10 +80,20 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
         'index, follow' => 'Index, Follow',
         'noindex, follow' => 'Noindex, Follow',
     ],
+    'preview' => [
+        'title_limit' => 60,
+        'description_limit' => 160,
+    ],
 ],
 ```
 
-`completion.required` مشخص می‌کند route در UI چه زمانی کامل است. `completion.recommended` فقط warning نشان می‌دهد. `robots_options` گزینه‌های dropdown robots را کنترل می‌کند.
+`completion.required` مشخص می‌کند route در UI چه زمانی کامل است. `completion.recommended` فقط warning نشان می‌دهد. `robots_options` گزینه‌های dropdown robots را کنترل می‌کند. `preview` حد طول عنوان و توضیحات را برای هشدارهای پیش‌نمایش نتیجه جستجو مشخص می‌کند.
+
+متن‌های UI از فایل‌های translation پکیج می‌آیند و با این دستور قابل publish هستند:
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-translations
+```
 
 ## commerce
 

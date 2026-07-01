@@ -55,9 +55,10 @@ Optional resources:
 ```bash
 php artisan vendor:publish --tag=zarbin-seo-migrations
 php artisan vendor:publish --tag=zarbin-seo-views
+php artisan vendor:publish --tag=zarbin-seo-translations
 ```
 
-The migration is only needed when you enable database-backed manual overrides. Views are only needed when you want to customize the optional Blade UI or form components.
+The migration is only needed when you enable database-backed manual overrides. Views are only needed when you want to customize the optional Blade UI or form components. Translations are only needed when you want to customize the included English/Persian UI copy or add more languages.
 
 ## Quick Start
 
@@ -499,6 +500,14 @@ GET /admin/seo/routes
 ```
 
 The route UI lists configured route-only pages and shows completion status. `✓` means all required SEO fields are present; `×` means one or more required fields are missing. Required and recommended fields are configurable under `ui.completion`, and recommended misses appear as warnings only. The robots field is a dropdown with common presets from `ui.robots_options`; published Blade views can still be customized.
+
+UI strings are translated through package language files. English and Persian are included out of the box, and you can publish them with:
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-translations
+```
+
+The route edit screen and embeddable form show a search-result-style preview for the SEO title, canonical URL, and meta description, plus the raw generated HTML preview. The search preview is a visual approximation for editing comfort; it is not a ranking or snippet-display guarantee.
 
 Embeddable form for your own admin panel:
 

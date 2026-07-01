@@ -6,6 +6,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added English and Persian translation files for the optional Blade UI.
+- Added publishable UI translations for custom languages.
+- Added search result preview for SEO title, canonical URL, and meta description.
 - Added SEO UI page inventory with completion status indicators.
 - Added configurable SEO completion checks.
 - Added robots dropdown support to the optional Blade UI.
@@ -18,6 +21,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- Replaced hard-coded UI labels, hints, buttons, warnings, and messages with translation keys.
 - Product schema can now be generated without Offer for catalog/company product pages.
 - Made sitemap hreflang alternates opt-in for cleaner default sitemap XML output.
 - Added doctor/readiness notice for sitemap xhtml alternates.

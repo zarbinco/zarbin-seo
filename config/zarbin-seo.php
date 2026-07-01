@@ -212,6 +212,10 @@ return [
         'preset' => 'unstyled',
         'database_required' => true,
         'show_preview' => true,
+        'preview' => [
+            'title_limit' => 60,
+            'description_limit' => 160,
+        ],
         'completion' => [
             'enabled' => true,
 

@@ -16,19 +16,19 @@ final class SeoFormFields
     public static function fields(): array
     {
         return [
-            'title' => ['key' => 'title', 'label' => 'SEO Title', 'type' => 'text', 'help' => 'Manual title override.'],
-            'description' => ['key' => 'description', 'label' => 'SEO Description', 'type' => 'textarea', 'rows' => 3, 'help' => 'Search result description.'],
-            'canonical' => ['key' => 'canonical', 'label' => 'Canonical URL', 'type' => 'url', 'help' => 'Absolute canonical URL.'],
-            'robots' => ['key' => 'robots', 'label' => 'Robots', 'type' => 'select', 'options' => self::robotsOptions(), 'help' => 'Choose a common robots directive.'],
-            'image' => ['key' => 'image', 'label' => 'Image URL', 'type' => 'url', 'help' => 'Default social image URL.'],
-            'og_title' => ['key' => 'og_title', 'label' => 'Open Graph Title', 'type' => 'text'],
-            'og_description' => ['key' => 'og_description', 'label' => 'Open Graph Description', 'type' => 'textarea', 'rows' => 3],
-            'og_image' => ['key' => 'og_image', 'label' => 'Open Graph Image URL', 'type' => 'url'],
-            'twitter_title' => ['key' => 'twitter_title', 'label' => 'Twitter/X Title', 'type' => 'text'],
-            'twitter_description' => ['key' => 'twitter_description', 'label' => 'Twitter/X Description', 'type' => 'textarea', 'rows' => 3],
-            'twitter_image' => ['key' => 'twitter_image', 'label' => 'Twitter/X Image URL', 'type' => 'url'],
-            'schema_type' => ['key' => 'schema_type', 'label' => 'Schema Type', 'type' => 'text', 'help' => 'Example: WebPage, Article, CollectionPage'],
-            'extra' => ['key' => 'extra', 'label' => 'Extra JSON', 'type' => 'textarea', 'rows' => 5, 'help' => 'Optional JSON object stored with the override.'],
+            'title' => self::field('title', 'text'),
+            'description' => self::field('description', 'textarea', ['rows' => 3]),
+            'canonical' => self::field('canonical', 'url'),
+            'robots' => self::field('robots', 'select', ['options' => self::robotsOptions()]),
+            'image' => self::field('image', 'url'),
+            'og_title' => self::field('og_title', 'text'),
+            'og_description' => self::field('og_description', 'textarea', ['rows' => 3]),
+            'og_image' => self::field('og_image', 'url'),
+            'twitter_title' => self::field('twitter_title', 'text'),
+            'twitter_description' => self::field('twitter_description', 'textarea', ['rows' => 3]),
+            'twitter_image' => self::field('twitter_image', 'url'),
+            'schema_type' => self::field('schema_type', 'text'),
+            'extra' => self::field('extra', 'textarea', ['rows' => 5]),
         ];
     }
 
@@ -175,6 +175,22 @@ final class SeoFormFields
             'extra' => $data['extra'] ?? null,
             default => $data[$field] ?? null,
         };
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     * @return array<string, mixed>
+     */
+    private static function field(string $key, string $type, array $extra = []): array
+    {
+        return array_replace([
+            'key' => $key,
+            'label_key' => "zarbin-seo::ui.fields.{$key}.label",
+            'hint_key' => "zarbin-seo::ui.fields.{$key}.hint",
+            'label' => UiTranslator::fieldLabel($key),
+            'help' => UiTranslator::fieldHint($key),
+            'type' => $type,
+        ], $extra);
     }
 
     private static function stringValue(string $field, mixed $value): string

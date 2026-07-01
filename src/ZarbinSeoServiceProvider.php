@@ -39,4 +39,19 @@ final class ZarbinSeoServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton('zarbin-seo', fn (): ZarbinSeo => new ZarbinSeo);
     }
+
+    public function packageBooted(): void
+    {
+        $translations = dirname(__DIR__).'/lang';
+
+        $this->loadTranslationsFrom($translations, 'zarbin-seo');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $translations => function_exists('lang_path')
+                    ? lang_path('vendor/zarbin-seo')
+                    : resource_path('lang/vendor/zarbin-seo'),
+            ], 'zarbin-seo-translations');
+        }
+    }
 }
