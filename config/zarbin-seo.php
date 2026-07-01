@@ -80,6 +80,23 @@ return [
 
         /*
          |--------------------------------------------------------------------------
+         | Sitemap HTTP Content Type
+         |--------------------------------------------------------------------------
+         |
+         | application/xml is the default XML response type. If a browser or
+         | local server renders sitemap XML as plain text instead of an XML
+         | tree, you may use:
+         |
+         | 'content_type' => 'text/xml; charset=UTF-8',
+         |
+         | This setting affects HTTP sitemap endpoints only. Console command
+         | output remains a plain XML string.
+         |
+         */
+        'content_type' => 'application/xml; charset=UTF-8',
+
+        /*
+         |--------------------------------------------------------------------------
          | Localized Sitemap Paths
          |--------------------------------------------------------------------------
          |

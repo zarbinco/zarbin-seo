@@ -102,6 +102,8 @@ final class PersianDocumentationTest extends TestCase
         $this->assertStringContainsString('sitemap-fa.xml', $combined);
         $this->assertStringContainsString('sitemap-en.xml', $combined);
         $this->assertStringContainsString('base_url', $combined);
+        $this->assertStringContainsString('content_type', $combined);
+        $this->assertStringContainsString('text/xml; charset=UTF-8', $combined);
         $this->assertStringContainsString('sunich.test', $combined);
         $this->assertStringContainsString("'locale' => 'fa'", $combined);
         $this->assertStringContainsString('localized_urls', $combined);

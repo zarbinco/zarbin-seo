@@ -6,6 +6,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added configurable sitemap XML response content type.
 - Added configurable locale URL strategy for multilingual route generation.
 - Added configurable per-locale sitemap paths.
 - Added sitemap index entries for localized sitemap files.
@@ -13,6 +14,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 ### Changed
 
 - Hardened localized sitemap routes, content types, locale-scoped route entries, and sitemap base URL handling.
+- Improved browser compatibility for sitemap XML responses by allowing text/xml content type.
 - Improved localized URL generation safety for prefixed and default-locale-without-prefix URL structures.
 
 ### Fixed

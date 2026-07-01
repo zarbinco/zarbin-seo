@@ -39,6 +39,7 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
 ```php
 'sitemap' => [
     'base_url' => 'https://sunich.org',
+    'content_type' => 'application/xml; charset=UTF-8',
     'path' => 'sitemap.xml',
     'index_path' => 'sitemap_index.xml',
     'localized_paths' => [
@@ -51,6 +52,8 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
 ```
 
 اگر `localized_paths` خالی باشد، رفتار قبلی `/sitemap.xml` باقی می‌ماند. اگر host تولید sitemap با host واقعی سایت فرق دارد، `base_url` را تنظیم کنید تا مثلا خروجی بین `localhost:3000` و `sunich.test` قاطی نشود.
+
+اگر browser خروجی sitemap را به جای XML tree مثل متن ساده نشان می‌دهد، می‌توانید `content_type` را برای routeهای HTTP به `text/xml; charset=UTF-8` تغییر دهید. این تنظیم روی خروجی commandها اثر ندارد.
 
 ## robots_txt
 

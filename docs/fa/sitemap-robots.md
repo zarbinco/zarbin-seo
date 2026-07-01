@@ -21,6 +21,7 @@
 
 'sitemap' => [
     'base_url' => 'https://sunich.org',
+    'content_type' => 'application/xml; charset=UTF-8',
     'localized_paths' => [
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
@@ -29,6 +30,16 @@
 ```
 
 با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. `base_url` کمک می‌کند host در sitemap با host واقعی سایت یکی بماند و مثلا بین `localhost:3000` و `sunich.test` قاطی نشود. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
+
+اگر مرورگر یا server محلی sitemap را با `application/xml` مثل متن ساده نشان داد، می‌توانید فقط برای routeهای HTTP مقدار content type را تغییر دهید:
+
+```php
+'sitemap' => [
+    'content_type' => 'text/xml; charset=UTF-8',
+],
+```
+
+این تنظیم روی خروجی commandها اثری ندارد و commandها همچنان XML را به صورت string چاپ می‌کنند.
 
 برای اینکه `sitemap-fa.xml` فقط URLهای فارسی و `sitemap-en.xml` فقط URLهای انگلیسی را نشان دهد، روی route entry مقدار `locale` یا `locales` بگذارید:
 

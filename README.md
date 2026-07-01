@@ -291,6 +291,7 @@ Projects that publish separate sitemap files per language can configure localize
 
 'sitemap' => [
     'base_url' => 'https://example.com',
+    'content_type' => 'application/xml; charset=UTF-8',
     'localized_paths' => [
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
@@ -299,6 +300,16 @@ Projects that publish separate sitemap files per language can configure localize
 ```
 
 With that config, `/sitemap-fa.xml` renders `fa` URLs, `/sitemap-en.xml` renders `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. Localized sitemap routes return XML responses with `application/xml` content type. `localized_paths` controls the sitemap file paths. `sitemap.base_url` controls the host used for sitemap index URLs and robots.txt auto sitemap links, which is useful when the current request host differs from the public site host.
+
+If your local server or browser displays sitemap XML as plain text, switch the HTTP response type:
+
+```php
+'sitemap' => [
+    'content_type' => 'text/xml; charset=UTF-8',
+],
+```
+
+This affects HTTP sitemap routes only; Artisan command output remains a plain XML string.
 
 Use `locale` or `locales` on route entries to control which localized sitemap includes each URL:
 

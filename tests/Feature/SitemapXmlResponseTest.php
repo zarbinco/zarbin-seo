@@ -38,7 +38,7 @@ final class SitemapXmlResponseTest extends TestCase
 
         $response = $this->get('/sitemap.xml');
 
-        $this->assertXmlResponse($response);
+        $this->assertXmlResponse($response, 'application/xml');
         $response->assertSee('<urlset', false);
         $response->assertSee('</urlset>', false);
         $response->assertSee('<loc>https://example.test/products</loc>', false);
@@ -48,7 +48,7 @@ final class SitemapXmlResponseTest extends TestCase
     {
         $response = $this->get('/sitemap_index.xml');
 
-        $this->assertXmlResponse($response);
+        $this->assertXmlResponse($response, 'application/xml');
         $response->assertSee('<sitemapindex', false);
         $response->assertSee('</sitemapindex>', false);
     }
@@ -59,7 +59,7 @@ final class SitemapXmlResponseTest extends TestCase
 
         $response = $this->get('/sitemap-fa.xml');
 
-        $this->assertXmlResponse($response);
+        $this->assertXmlResponse($response, 'application/xml');
         $response->assertSee('<urlset', false);
         $response->assertSee('<loc>https://example.test/fa/products</loc>', false);
         $response->assertDontSee('<loc>https://example.test/en/products</loc>', false);
@@ -71,20 +71,50 @@ final class SitemapXmlResponseTest extends TestCase
 
         $response = $this->get('/sitemap-en.xml');
 
-        $this->assertXmlResponse($response);
+        $this->assertXmlResponse($response, 'application/xml');
         $response->assertSee('<urlset', false);
         $response->assertSee('<loc>https://example.test/en/products</loc>', false);
         $response->assertDontSee('<loc>https://example.test/fa/products</loc>', false);
     }
 
-    private function assertXmlResponse(TestResponse $response): void
+    public function test_all_sitemap_endpoints_use_configured_text_xml_content_type(): void
+    {
+        config()->set('zarbin-seo.sitemap.content_type', 'text/xml; charset=UTF-8');
+        config()->set('zarbin-seo.routes', [
+            'xml.text.products' => [
+                'canonical' => 'https://example.test/products',
+                'sitemap' => true,
+            ],
+        ]);
+        $this->configureLocalizedRoutes();
+
+        $default = $this->get('/sitemap.xml');
+        $index = $this->get('/sitemap_index.xml');
+        $fa = $this->get('/sitemap-fa.xml');
+        $en = $this->get('/sitemap-en.xml');
+
+        $this->assertXmlResponse($default, 'text/xml');
+        $default->assertSee('<urlset', false);
+
+        $this->assertXmlResponse($index, 'text/xml');
+        $index->assertSee('<sitemapindex', false);
+
+        $this->assertXmlResponse($fa, 'text/xml');
+        $fa->assertSee('<urlset', false);
+
+        $this->assertXmlResponse($en, 'text/xml');
+        $en->assertSee('<urlset', false);
+    }
+
+    private function assertXmlResponse(TestResponse $response, string $expectedContentType): void
     {
         $response->assertOk();
 
         $contentType = (string) $response->headers->get('Content-Type');
 
-        $this->assertStringContainsString('application/xml', $contentType);
+        $this->assertStringContainsString($expectedContentType, $contentType);
         $this->assertFalse(str_starts_with(mb_strtolower($contentType), 'text/html'));
+        $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
         $this->assertStringStartsWith('<?xml', $response->getContent());
     }
 

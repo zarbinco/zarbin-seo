@@ -17,6 +17,17 @@ final class SitemapCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
+    public function test_sitemap_command_output_is_unchanged_by_http_content_type_config(): void
+    {
+        $this->configureSitemapRoute();
+        config()->set('zarbin-seo.sitemap.content_type', 'text/xml; charset=UTF-8');
+
+        $this->artisan('zarbin-seo:sitemap')
+            ->expectsOutputToContain('<?xml version="1.0" encoding="UTF-8"?>')
+            ->doesntExpectOutputToContain('text/xml; charset=UTF-8')
+            ->assertExitCode(0);
+    }
+
     public function test_count_outputs_url_count(): void
     {
         $this->configureSitemapRoute();

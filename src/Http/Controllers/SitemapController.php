@@ -9,17 +9,18 @@ use Zarbin\Seo\Generators\SitemapGenerator;
 use Zarbin\Seo\Renderers\SitemapRenderer;
 use Zarbin\Seo\Support\LocaleHelper;
 use Zarbin\Seo\Support\SitemapPathResolver;
+use Zarbin\Seo\Support\XmlResponse;
 
 final class SitemapController
 {
     public function __invoke(): Response
     {
-        return $this->xmlResponse((new SitemapGenerator)->render());
+        return XmlResponse::make((new SitemapGenerator)->render());
     }
 
     public function index(): Response
     {
-        return $this->xmlResponse((new SitemapGenerator)->renderIndex());
+        return XmlResponse::make((new SitemapGenerator)->renderIndex());
     }
 
     public function localized(string $locale): Response
@@ -27,17 +28,9 @@ final class SitemapController
         $locale = LocaleHelper::normalizeLocale($locale);
 
         if ($locale === null || ! array_key_exists($locale, SitemapPathResolver::localizedPaths())) {
-            return $this->xmlResponse((new SitemapRenderer)->render([]));
+            return XmlResponse::make((new SitemapRenderer)->render([]));
         }
 
-        return $this->xmlResponse((new SitemapGenerator)->render($locale));
-    }
-
-    private function xmlResponse(string $xml): Response
-    {
-        $response = new Response($xml, 200);
-        $response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
-
-        return $response;
+        return XmlResponse::make((new SitemapGenerator)->render($locale));
     }
 }
