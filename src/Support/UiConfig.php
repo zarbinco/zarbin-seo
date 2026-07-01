@@ -73,6 +73,18 @@ final class UiConfig
         return (bool) self::value('show_preview', true);
     }
 
+    public static function routeInventoryEnabled(): bool
+    {
+        $enabled = self::config('zarbin-seo.ui.inventory.routes.enabled');
+
+        return $enabled === null ? true : (bool) $enabled;
+    }
+
+    public static function modelInventoryEnabled(): bool
+    {
+        return (bool) self::config('zarbin-seo.ui.inventory.models.enabled', false);
+    }
+
     private static function value(string $key, mixed $default = null): mixed
     {
         $value = self::config('zarbin-seo.ui.'.$key);

@@ -45,6 +45,9 @@
     <nav aria-label="{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.aria') }}">
         <a href="{{ route($prefix.'dashboard') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.dashboard') }}</a>
         <a href="{{ route($prefix.'routes.index') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.routes') }}</a>
+        @if(\Zarbin\Seo\Support\UiConfig::modelInventoryEnabled() && \Illuminate\Support\Facades\Route::has($prefix.'models.index'))
+            <a href="{{ route($prefix.'models.index') }}">{{ \Zarbin\Seo\Support\UiTranslator::get('navigation.models') }}</a>
+        @endif
     </nav>
 </header>
 <main>

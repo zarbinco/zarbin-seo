@@ -60,6 +60,7 @@ final class ReleaseReadinessTest extends TestCase
     {
         $this->assertFalse(Route::has('zarbin-seo.ui.dashboard'));
         $this->assertFalse(Route::has('zarbin-seo.ui.routes.index'));
+        $this->assertFalse(Route::has('zarbin-seo.ui.models.index'));
     }
 
     public function test_seo_helper_exists(): void

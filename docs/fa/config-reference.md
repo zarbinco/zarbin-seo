@@ -84,10 +84,22 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
         'title_limit' => 60,
         'description_limit' => 160,
     ],
+    'inventory' => [
+        'routes' => [
+            'enabled' => true,
+        ],
+        'models' => [
+            'enabled' => false,
+            'default_limit' => 50,
+            'max_limit' => 200,
+        ],
+    ],
 ],
 ```
 
 `completion.required` مشخص می‌کند route در UI چه زمانی کامل است. `completion.recommended` فقط warning نشان می‌دهد. `robots_options` گزینه‌های dropdown robots را کنترل می‌کند. `preview` حد طول عنوان و توضیحات را برای هشدارهای پیش‌نمایش نتیجه جستجو مشخص می‌کند.
+
+`inventory.routes.enabled` به صورت پیش‌فرض فعال است. `inventory.models.enabled` به صورت پیش‌فرض غیرفعال است و فقط مدل‌هایی را نشان می‌دهد که در config خودشان `ui.enabled` و `ui.source` صریح داشته باشند؛ پکیج مدل‌ها را خودکار crawl نمی‌کند.
 
 متن‌های UI از فایل‌های translation پکیج می‌آیند و با این دستور قابل publish هستند:
 

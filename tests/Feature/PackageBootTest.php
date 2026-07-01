@@ -15,6 +15,8 @@ final class PackageBootTest extends TestCase
         $this->assertIsArray(config('zarbin-seo'));
         $this->assertSame(' - ', config('zarbin-seo.defaults.separator'));
         $this->assertIsArray(config('zarbin-seo.features'));
+        $this->assertTrue(config('zarbin-seo.ui.inventory.routes.enabled'));
+        $this->assertFalse(config('zarbin-seo.ui.inventory.models.enabled'));
     }
 
     public function test_service_container_can_resolve_package(): void

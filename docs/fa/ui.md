@@ -39,6 +39,40 @@ Route UI فعلا برای مدیریت overrideهای routeهای تعریف‌
 
 field مربوط به robots به صورت dropdown با presetهای رایج نمایش داده می‌شود. گزینه‌ها از `ui.robots_options` می‌آیند و viewهای Blade همچنان قابل publish و سفارشی‌سازی هستند.
 
+## inventory مدل‌ها
+
+Inventory مدل‌ها به‌صورت پیش‌فرض غیرفعال است و فقط وقتی کار می‌کند که هم `ui.inventory.models.enabled` فعال باشد و هم برای هر مدل، `ui.enabled` و یک `source` صریح تعریف شده باشد.
+
+پکیج هیچ model crawling خودکاری انجام نمی‌دهد و هرگز بدون تنظیم شما همه مدل‌ها را query نمی‌کند. برای مثال:
+
+```php
+'ui' => [
+    'inventory' => [
+        'models' => [
+            'enabled' => true,
+            'default_limit' => 50,
+            'max_limit' => 200,
+        ],
+    ],
+],
+
+'models' => [
+    App\Models\Product::class => [
+        'title' => 'title',
+        'description' => 'description',
+        'ui' => [
+            'enabled' => true,
+            'label' => 'محصولات',
+            'source' => fn () => App\Models\Product::query()->latest()->limit(50)->get(),
+            'key' => 'id',
+            'display' => ['title', 'name', 'slug'],
+        ],
+    ],
+],
+```
+
+صفحه ویرایش مدل‌ها از همان database override استفاده می‌کند؛ یعنی override برای همان instance مدل و locale انتخاب‌شده ذخیره یا حذف می‌شود.
+
 ## فرم قابل embed
 
 برای مدل‌ها، holderها یا routeها می‌توانید فرم را داخل admin panel خودتان قرار دهید.

@@ -19,6 +19,8 @@ final class PublishedViewsSmokeTest extends TestCase
         $this->assertTrue(view()->exists('zarbin-seo::ui.dashboard'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.routes.index'));
         $this->assertTrue(view()->exists('zarbin-seo::ui.routes.edit'));
+        $this->assertTrue(view()->exists('zarbin-seo::ui.models.index'));
+        $this->assertTrue(view()->exists('zarbin-seo::ui.models.edit'));
 
         $this->assertIsString(view('zarbin-seo::ui.dashboard', [
             'status' => [
@@ -30,6 +32,7 @@ final class PublishedViewsSmokeTest extends TestCase
                 'localization_enabled' => false,
             ],
             'databaseReady' => true,
+            'modelsEnabled' => true,
             'routeNamePrefix' => 'zarbin-seo.ui.',
         ])->render());
 
@@ -39,9 +42,33 @@ final class PublishedViewsSmokeTest extends TestCase
             'routeNamePrefix' => 'zarbin-seo.ui.',
         ])->render());
 
+        $this->assertIsString(view('zarbin-seo::ui.models.index', [
+            'models' => [],
+            'modelsEnabled' => true,
+            'databaseReady' => true,
+            'routeNamePrefix' => 'zarbin-seo.ui.',
+        ])->render());
+
         $resolved = SeoData::make(['title' => 'Resolved']);
         $this->assertIsString(view('zarbin-seo::ui.routes.edit', [
             'routeName' => 'home',
+            'locale' => null,
+            'resolved' => $resolved,
+            'override' => null,
+            'fields' => SeoFormFields::fields(),
+            'values' => SeoFormFields::values([], $resolved->toArray()),
+            'databaseReady' => true,
+            'showPreview' => true,
+            'previewHtml' => '<title>Resolved</title>',
+            'routeNamePrefix' => 'zarbin-seo.ui.',
+        ])->render());
+
+        $this->assertIsString(view('zarbin-seo::ui.models.edit', [
+            'modelClass' => self::class,
+            'modelKey' => '1',
+            'modelLabel' => 'Model label',
+            'sourceLabel' => 'Models',
+            'modelToken' => self::class,
             'locale' => null,
             'resolved' => $resolved,
             'override' => null,
@@ -90,6 +117,10 @@ final class PublishedViewsSmokeTest extends TestCase
             Route::get('/admin/seo/routes/edit')->name('zarbin-seo.ui.routes.edit');
             Route::post('/admin/seo/routes')->name('zarbin-seo.ui.routes.update');
             Route::delete('/admin/seo/routes')->name('zarbin-seo.ui.routes.delete');
+            Route::get('/admin/seo/models')->name('zarbin-seo.ui.models.index');
+            Route::get('/admin/seo/models/edit')->name('zarbin-seo.ui.models.edit');
+            Route::post('/admin/seo/models')->name('zarbin-seo.ui.models.update');
+            Route::delete('/admin/seo/models')->name('zarbin-seo.ui.models.destroy');
         }
     }
 }

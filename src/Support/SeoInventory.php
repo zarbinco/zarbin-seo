@@ -14,6 +14,8 @@ final class SeoInventory
     public function __construct(
         private readonly SeoSourceResolver $resolver = new SeoSourceResolver,
         private readonly SeoCompletionChecker $completion = new SeoCompletionChecker,
+        private readonly ModelInventorySourceResolver $modelSources = new ModelInventorySourceResolver,
+        private readonly ModelInventoryItemFactory $modelItems = new ModelInventoryItemFactory,
     ) {}
 
     /**
@@ -21,6 +23,10 @@ final class SeoInventory
      */
     public function routes(?string $locale = null): array
     {
+        if (! UiConfig::routeInventoryEnabled()) {
+            return [];
+        }
+
         $items = [];
 
         foreach ($this->configuredRoutes() as $routeName => $config) {
@@ -55,9 +61,36 @@ final class SeoInventory
     /**
      * @return array<int, SeoInventoryItem>
      */
+    public function models(?string $locale = null): array
+    {
+        $items = [];
+
+        foreach ($this->configuredModels() as $modelClass => $config) {
+            foreach ($this->modelSources->resolve($modelClass, $config) as $model) {
+                if (! is_object($model)) {
+                    continue;
+                }
+
+                $item = $this->modelItems->make($model, $modelClass, $config, $locale);
+
+                if ($item !== null) {
+                    $items[] = $item;
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array<int, SeoInventoryItem>
+     */
     public function all(?string $locale = null): array
     {
-        return $this->routes($locale);
+        return array_values(array_merge(
+            $this->routes($locale),
+            $this->models($locale),
+        ));
     }
 
     /**
@@ -68,6 +101,28 @@ final class SeoInventory
         $routes = $this->config('zarbin-seo.routes', []);
 
         return is_array($routes) ? array_filter($routes, 'is_array') : [];
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function configuredModels(): array
+    {
+        $models = $this->config('zarbin-seo.models', []);
+
+        if (! is_array($models)) {
+            return [];
+        }
+
+        $configured = [];
+
+        foreach ($models as $modelClass => $config) {
+            if (is_string($modelClass) && $modelClass !== '' && is_array($config)) {
+                $configured[$modelClass] = $config;
+            }
+        }
+
+        return $configured;
     }
 
     /**

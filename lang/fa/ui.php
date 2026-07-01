@@ -6,7 +6,9 @@ return [
     'navigation' => [
         'dashboard' => 'داشبورد',
         'routes' => 'مسیرها',
+        'models' => 'مدل‌ها',
         'back_to_routes' => 'بازگشت به مسیرها',
+        'back_to_models' => 'بازگشت به مدل‌ها',
         'aria' => 'ناوبری SEO',
     ],
 
@@ -19,9 +21,15 @@ return [
         'routes_total' => 'مسیرها',
         'routes_complete' => 'کامل',
         'routes_incomplete' => 'ناقص',
+        'models_total' => 'مدل‌ها',
+        'models_complete' => 'کامل',
+        'models_incomplete' => 'ناقص',
         'route_overrides' => 'Override مسیرها',
         'route_overrides_description' => 'ویرایش دستی SEO برای مسیرهای تعریف‌شده در config.',
         'manage_route_overrides' => 'مدیریت مسیرها',
+        'model_overrides' => 'Override مدل‌ها',
+        'model_overrides_description' => 'ویرایش دستی SEO برای مدل‌هایی که به‌صورت امن و صریح در inventory تعریف شده‌اند.',
+        'manage_model_overrides' => 'مدیریت مدل‌ها',
         'yes' => 'بله',
         'no' => 'خیر',
         'status_items' => [
@@ -52,6 +60,19 @@ return [
         'incomplete' => 'ناقص',
     ],
 
+    'models' => [
+        'title' => 'مدل‌های SEO',
+        'edit_title' => 'ویرایش SEO مدل',
+        'description' => 'Inventory مدل‌ها و holderهایی که صریحا برای SEO تعریف شده‌اند.',
+        'empty' => 'هیچ آیتم مدل برای SEO تعریف نشده است.',
+        'disabled' => 'Inventory مدل‌ها غیرفعال است. برای نمایش مدل‌ها باید ui.inventory.models.enabled را فعال کنید و برای هر مدل source صریح تعریف کنید.',
+        'class' => 'مدل',
+        'item' => 'آیتم',
+        'key' => 'کلید',
+        'edit' => 'ویرایش',
+        'not_found' => 'آیتم SEO مدل پیدا نشد.',
+    ],
+
     'form' => [
         'legend' => 'Override SEO',
         'save' => 'ذخیره SEO',
@@ -65,6 +86,10 @@ return [
         'deleted' => 'override SEO حذف شد.',
         'not_saved' => 'override SEO ذخیره نشد.',
         'not_deleted' => 'override SEO حذف نشد.',
+        'model_saved' => 'override SEO مدل ذخیره شد.',
+        'model_deleted' => 'override SEO مدل حذف شد.',
+        'model_not_saved' => 'override SEO مدل ذخیره نشد.',
+        'model_not_deleted' => 'override SEO مدل حذف نشد.',
         'validation_errors' => 'برخی فیلدها خطا دارند.',
     ],
 

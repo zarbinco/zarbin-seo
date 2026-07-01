@@ -16,5 +16,9 @@ if (UiConfig::routeEnabled()) {
             Route::get('/routes/edit', [SeoUiController::class, 'editRoute'])->name('routes.edit');
             Route::post('/routes', [SeoUiController::class, 'updateRoute'])->name('routes.update');
             Route::delete('/routes', [SeoUiController::class, 'deleteRoute'])->name('routes.delete');
+            Route::get('/models', [SeoUiController::class, 'models'])->name('models.index');
+            Route::get('/models/edit', [SeoUiController::class, 'editModel'])->name('models.edit');
+            Route::post('/models', [SeoUiController::class, 'updateModel'])->name('models.update');
+            Route::delete('/models', [SeoUiController::class, 'deleteModel'])->name('models.destroy');
         });
 }

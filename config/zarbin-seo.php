@@ -216,6 +216,16 @@ return [
             'title_limit' => 60,
             'description_limit' => 160,
         ],
+        'inventory' => [
+            'routes' => [
+                'enabled' => true,
+            ],
+            'models' => [
+                'enabled' => false,
+                'default_limit' => 50,
+                'max_limit' => 200,
+            ],
+        ],
         'completion' => [
             'enabled' => true,
 
@@ -265,6 +275,21 @@ return [
 
     'models' => [
         // Model and model-backed holder mappings may be registered by class name.
+        //
+        // App\Models\Product::class => [
+        //     'route' => 'products.show',
+        //     'route_key' => 'slug',
+        //     'title' => 'title',
+        //     'description' => 'description',
+        //     'ui' => [
+        //         'enabled' => true,
+        //         'label' => 'Products',
+        //         'source' => fn () => App\Models\Product::query()->latest()->limit(50)->get(),
+        //         'key' => 'id',
+        //         'display' => ['title', 'name', 'slug'],
+        //         'locale' => null,
+        //     ],
+        // ],
     ],
 
     'routes' => [

@@ -489,6 +489,16 @@ The UI is disabled by default. It edits database override records and has no Liv
         'required' => ['title', 'description', 'canonical', 'robots'],
         'recommended' => ['image'],
     ],
+    'inventory' => [
+        'routes' => [
+            'enabled' => true,
+        ],
+        'models' => [
+            'enabled' => false,
+            'default_limit' => 50,
+            'max_limit' => 200,
+        ],
+    ],
 ],
 ```
 
@@ -508,6 +518,38 @@ php artisan vendor:publish --tag=zarbin-seo-translations
 ```
 
 The route edit screen and embeddable form show a search-result-style preview for the SEO title, canonical URL, and meta description, plus the raw generated HTML preview. The search preview is a visual approximation for editing comfort; it is not a ranking or snippet-display guarantee.
+
+Model and holder inventory is opt-in. The package does not crawl every model class and does not run `Model::query()->get()` automatically. To list products, posts, pages, or holder-like models in the dedicated UI, enable model inventory globally and provide an explicit source for each configured model:
+
+```php
+'ui' => [
+    'inventory' => [
+        'models' => [
+            'enabled' => true,
+            'default_limit' => 50,
+            'max_limit' => 200,
+        ],
+    ],
+],
+
+'models' => [
+    App\Models\Product::class => [
+        'route' => 'products.show',
+        'route_key' => 'slug',
+        'title' => 'title',
+        'description' => 'description',
+        'ui' => [
+            'enabled' => true,
+            'label' => 'Products',
+            'source' => fn () => App\Models\Product::query()->latest()->limit(50)->get(),
+            'key' => 'id',
+            'display' => ['title', 'name', 'slug'],
+        ],
+    ],
+],
+```
+
+Model edit screens use the same database override system as route edit screens, so saving a model item stores an override for that specific model instance and optional locale.
 
 Embeddable form for your own admin panel:
 

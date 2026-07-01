@@ -6,6 +6,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Added
 
+- Added opt-in model and holder inventory for the optional Blade UI.
+- Added model SEO edit screens backed by database overrides.
+- Added safe model inventory source handling.
 - Added English and Persian translation files for the optional Blade UI.
 - Added publishable UI translations for custom languages.
 - Added search result preview for SEO title, canonical URL, and meta description.
@@ -21,6 +24,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- UI inventory can now combine route-only and configured model SEO items.
 - Replaced hard-coded UI labels, hints, buttons, warnings, and messages with translation keys.
 - Product schema can now be generated without Offer for catalog/company product pages.
 - Made sitemap hreflang alternates opt-in for cleaner default sitemap XML output.

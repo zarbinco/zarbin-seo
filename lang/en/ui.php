@@ -6,7 +6,9 @@ return [
     'navigation' => [
         'dashboard' => 'Dashboard',
         'routes' => 'Routes',
+        'models' => 'Models',
         'back_to_routes' => 'Back to routes',
+        'back_to_models' => 'Back to models',
         'aria' => 'SEO navigation',
     ],
 
@@ -19,9 +21,15 @@ return [
         'routes_total' => 'Routes',
         'routes_complete' => 'Complete',
         'routes_incomplete' => 'Incomplete',
+        'models_total' => 'Models',
+        'models_complete' => 'Complete',
+        'models_incomplete' => 'Incomplete',
         'route_overrides' => 'Route Overrides',
         'route_overrides_description' => 'Edit manual SEO overrides for configured route-only pages.',
         'manage_route_overrides' => 'Manage route overrides',
+        'model_overrides' => 'Model Overrides',
+        'model_overrides_description' => 'Edit manual SEO overrides for explicitly configured model inventory items.',
+        'manage_model_overrides' => 'Manage model overrides',
         'yes' => 'Yes',
         'no' => 'No',
         'status_items' => [
@@ -52,6 +60,19 @@ return [
         'incomplete' => 'Incomplete',
     ],
 
+    'models' => [
+        'title' => 'SEO Models',
+        'edit_title' => 'Edit SEO Model',
+        'description' => 'Explicitly configured model and holder SEO inventory.',
+        'empty' => 'No model SEO items are configured.',
+        'disabled' => 'Model inventory is disabled. Enable ui.inventory.models.enabled and configure explicit model UI sources to list model items.',
+        'class' => 'Model',
+        'item' => 'Item',
+        'key' => 'Key',
+        'edit' => 'Edit',
+        'not_found' => 'The requested model SEO item was not found.',
+    ],
+
     'form' => [
         'legend' => 'SEO Override',
         'save' => 'Save SEO',
@@ -65,6 +86,10 @@ return [
         'deleted' => 'SEO override deleted.',
         'not_saved' => 'SEO override could not be saved.',
         'not_deleted' => 'SEO override could not be deleted.',
+        'model_saved' => 'Model SEO override saved.',
+        'model_deleted' => 'Model SEO override deleted.',
+        'model_not_saved' => 'Model SEO override could not be saved.',
+        'model_not_deleted' => 'Model SEO override could not be deleted.',
         'validation_errors' => 'There were validation errors.',
     ],
 
