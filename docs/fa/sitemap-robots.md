@@ -31,6 +31,8 @@
 
 با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. `base_url` کمک می‌کند host در sitemap با host واقعی سایت یکی بماند و مثلا بین `localhost:3000` و `sunich.test` قاطی نشود. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
 
+وقتی `sitemap.include_alternates` فعال باشد، hreflangهای sitemap به صورت XML-safe و با تگ‌های `xhtml:link` ساخته می‌شوند. اگر پروژه به hreflang داخل sitemap نیاز ندارد، می‌توانید `include_alternates` را خاموش کنید.
+
 اگر مرورگر یا server محلی sitemap را با `application/xml` مثل متن ساده نشان داد، می‌توانید فقط برای routeهای HTTP مقدار content type را تغییر دهید:
 
 ```php
@@ -40,6 +42,7 @@
 ```
 
 این تنظیم روی خروجی commandها اثری ندارد و commandها همچنان XML را به صورت string چاپ می‌کنند.
+این گزینه جایگزین XML معتبر نیست؛ خود sitemap همچنان باید بدون خطا parse شود.
 
 برای اینکه `sitemap-fa.xml` فقط URLهای فارسی و `sitemap-en.xml` فقط URLهای انگلیسی را نشان دهد، روی route entry مقدار `locale` یا `locales` بگذارید:
 

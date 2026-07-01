@@ -12,10 +12,8 @@ final class SitemapRenderer
 {
     public function render(iterable $urls): string
     {
-        $lines = [
-            SitemapXml::xmlHeader(),
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
-        ];
+        $urlBlocks = [];
+        $hasAlternates = false;
 
         foreach ($urls as $url) {
             $url = $url instanceof SitemapUrl ? $url : SitemapUrl::make((array) $url);
@@ -24,30 +22,44 @@ final class SitemapRenderer
                 continue;
             }
 
-            $lines[] = '  <url>';
-            $lines[] = '    <loc>'.SitemapXml::escape($url->loc).'</loc>';
-
-            if ($url->normalizedLastModified() !== null) {
-                $lines[] = '    <lastmod>'.SitemapXml::escape($url->normalizedLastModified()).'</lastmod>';
-            }
-
-            if ($url->changefreq !== null) {
-                $lines[] = '    <changefreq>'.SitemapXml::escape($url->changefreq).'</changefreq>';
-            }
-
-            if ($url->normalizedPriority() !== null) {
-                $lines[] = '    <priority>'.SitemapXml::escape($url->normalizedPriority()).'</priority>';
-            }
+            $urlLines = [];
+            $urlLines[] = '  <url>';
+            $urlLines[] = '    <loc>'.SitemapXml::escape($url->loc).'</loc>';
 
             foreach ($url->alternates as $locale => $alternateUrl) {
-                if (trim((string) $locale) === '' || trim((string) $alternateUrl) === '') {
+                $link = $this->renderAlternateLink((string) $locale, (string) $alternateUrl);
+
+                if ($link === null) {
                     continue;
                 }
 
-                $lines[] = '    <xhtml:link rel="alternate" hreflang="'.SitemapXml::escape((string) $locale).'" href="'.SitemapXml::escape((string) $alternateUrl).'" />';
+                $urlLines[] = '    '.$link;
+                $hasAlternates = true;
             }
 
-            $lines[] = '  </url>';
+            if ($url->normalizedLastModified() !== null) {
+                $urlLines[] = '    <lastmod>'.SitemapXml::escape($url->normalizedLastModified()).'</lastmod>';
+            }
+
+            if ($url->changefreq !== null) {
+                $urlLines[] = '    <changefreq>'.SitemapXml::escape($url->changefreq).'</changefreq>';
+            }
+
+            if ($url->normalizedPriority() !== null) {
+                $urlLines[] = '    <priority>'.SitemapXml::escape($url->normalizedPriority()).'</priority>';
+            }
+
+            $urlLines[] = '  </url>';
+            $urlBlocks[] = $urlLines;
+        }
+
+        $lines = [
+            SitemapXml::xmlHeader(),
+            $this->urlsetOpenTag($hasAlternates),
+        ];
+
+        foreach ($urlBlocks as $urlLines) {
+            array_push($lines, ...$urlLines);
         }
 
         $lines[] = '</urlset>';
@@ -85,6 +97,35 @@ final class SitemapRenderer
         $lines[] = '</sitemapindex>';
 
         return implode(PHP_EOL, $lines);
+    }
+
+    private function urlsetOpenTag(bool $hasAlternates): string
+    {
+        $attributes = 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
+
+        if ($hasAlternates) {
+            $attributes .= ' xmlns:xhtml="http://www.w3.org/1999/xhtml"';
+        }
+
+        return '<urlset '.$attributes.'>';
+    }
+
+    private function renderAlternateLink(string $hreflang, string $href): ?string
+    {
+        $hreflang = trim($hreflang);
+        $href = trim($href);
+
+        if ($hreflang === '' || $href === '') {
+            return null;
+        }
+
+        $attributes = SitemapXml::attributes([
+            'rel' => 'alternate',
+            'hreflang' => $hreflang,
+            'href' => $href,
+        ]);
+
+        return $attributes === '' ? null : '<xhtml:link '.$attributes.' />';
     }
 
     private function lastModified(mixed $lastmod): ?string

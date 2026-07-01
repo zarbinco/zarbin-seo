@@ -301,6 +301,8 @@ Projects that publish separate sitemap files per language can configure localize
 
 With that config, `/sitemap-fa.xml` renders `fa` URLs, `/sitemap-en.xml` renders `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. Localized sitemap routes return XML responses with `application/xml` content type. `localized_paths` controls the sitemap file paths. `sitemap.base_url` controls the host used for sitemap index URLs and robots.txt auto sitemap links, which is useful when the current request host differs from the public site host.
 
+When `sitemap.include_alternates` is enabled, sitemap hreflang alternates are rendered as XML-safe `xhtml:link` elements. Disable `include_alternates` if your project does not want hreflang alternates inside sitemap files.
+
 If your local server or browser displays sitemap XML as plain text, switch the HTTP response type:
 
 ```php
@@ -310,6 +312,7 @@ If your local server or browser displays sitemap XML as plain text, switch the H
 ```
 
 This affects HTTP sitemap routes only; Artisan command output remains a plain XML string.
+It is not a workaround for malformed XML; the sitemap XML itself must still parse cleanly.
 
 Use `locale` or `locales` on route entries to control which localized sitemap includes each URL:
 
