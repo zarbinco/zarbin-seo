@@ -26,6 +26,7 @@ abstract class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app): void
     {
+        $app['config']->set('zarbin-seo', require __DIR__.'/../config/zarbin-seo.php');
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
             'driver' => 'sqlite',

@@ -296,12 +296,23 @@ Projects that publish separate sitemap files per language can configure localize
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
     ],
+    'include_alternates' => false,
 ],
 ```
 
 With that config, `/sitemap-fa.xml` renders `fa` URLs, `/sitemap-en.xml` renders `en` URLs, and `/sitemap_index.xml` lists both localized sitemap files. Localized sitemap routes return XML responses with `application/xml` content type. `localized_paths` controls the sitemap file paths. `sitemap.base_url` controls the host used for sitemap index URLs and robots.txt auto sitemap links, which is useful when the current request host differs from the public site host.
 
-When `sitemap.include_alternates` is enabled, sitemap hreflang alternates are rendered as XML-safe `xhtml:link` elements. Disable `include_alternates` if your project does not want hreflang alternates inside sitemap files.
+Sitemap hreflang alternates are disabled by default for cleaner sitemap XML output. Hreflang in the HTML `<head>` remains supported through normal rendering with `seo()->alternates()` and `seo()->render()`.
+
+Enable sitemap alternates only when you specifically want hreflang inside sitemap files:
+
+```php
+'sitemap' => [
+    'include_alternates' => true,
+],
+```
+
+When enabled, sitemap hreflang alternates are rendered as XML-safe `xhtml:link` elements. If a local browser/server displays sitemap XML as plain text with `xhtml` alternates enabled, keep `include_alternates` disabled or rely on HTML head hreflang.
 
 If your local server or browser displays sitemap XML as plain text, switch the HTTP response type:
 

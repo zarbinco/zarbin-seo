@@ -71,6 +71,28 @@ final class SeoDoctorTest extends TestCase
         $this->assertTrue($this->hasStatus((new SeoDoctor)->results(), 'Commerce', 'ok'));
     }
 
+    public function test_warns_when_sitemap_alternates_are_enabled_with_public_route(): void
+    {
+        config()->set('zarbin-seo.sitemap.include_alternates', true);
+        config()->set('zarbin-seo.sitemap.route_enabled', true);
+
+        $result = $this->resultFor((new SeoDoctor)->results(), 'Sitemap alternates');
+
+        $this->assertSame('warning', $result?->status);
+        $this->assertStringContainsString('Sitemap xhtml alternates are enabled', (string) $result?->message);
+        $this->assertStringContainsString('HTML head', (string) $result?->message);
+    }
+
+    public function test_reports_info_when_sitemap_alternates_are_enabled_without_public_route(): void
+    {
+        config()->set('zarbin-seo.sitemap.include_alternates', true);
+        config()->set('zarbin-seo.sitemap.route_enabled', false);
+
+        $result = $this->resultFor((new SeoDoctor)->results(), 'Sitemap alternates');
+
+        $this->assertSame('info', $result?->status);
+    }
+
     public function test_has_errors_and_warnings_work(): void
     {
         config()->set('zarbin-seo.localization.enabled', true);

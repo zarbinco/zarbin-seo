@@ -13,6 +13,8 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- Made sitemap hreflang alternates opt-in for cleaner default sitemap XML output.
+- Added doctor/readiness notice for sitemap xhtml alternates.
 - Hardened localized sitemap routes, content types, locale-scoped route entries, and sitemap base URL handling.
 - Improved browser compatibility for valid sitemap XML responses by allowing text/xml content type.
 - Improved localized URL generation safety for prefixed and default-locale-without-prefix URL structures.

@@ -26,12 +26,23 @@
         'fa' => 'sitemap-fa.xml',
         'en' => 'sitemap-en.xml',
     ],
+    'include_alternates' => false,
 ],
 ```
 
 با این config، مسیرهای `/sitemap-fa.xml` و `/sitemap-en.xml` فعال می‌شوند و `/sitemap_index.xml` هر دو فایل را list می‌کند. `base_url` کمک می‌کند host در sitemap با host واقعی سایت یکی بماند و مثلا بین `localhost:3000` و `sunich.test` قاطی نشود. اگر `robots_txt.sitemaps` را دستی تنظیم نکرده باشید، robots.txt به sitemap index اشاره می‌کند.
 
-وقتی `sitemap.include_alternates` فعال باشد، hreflangهای sitemap به صورت XML-safe و با تگ‌های `xhtml:link` ساخته می‌شوند. اگر پروژه به hreflang داخل sitemap نیاز ندارد، می‌توانید `include_alternates` را خاموش کنید.
+`include_alternates` به صورت پیش‌فرض `false` است تا sitemap XML تمیزتر و ساده‌تر باشد. hreflang همچنان می‌تواند در `<head>` صفحه‌ها با `seo()->alternates()` و `seo()->render()` تولید شود.
+
+اگر پروژه مشخصا می‌خواهد hreflang داخل sitemap هم داشته باشد، می‌توانید آن را فعال کنید:
+
+```php
+'sitemap' => [
+    'include_alternates' => true,
+],
+```
+
+وقتی `sitemap.include_alternates` فعال باشد، hreflangهای sitemap به صورت XML-safe و با تگ‌های `xhtml:link` ساخته می‌شوند. اگر sitemap با `xhtml:link` در مرورگر به صورت متن دیده شد، می‌توانید `include_alternates` را false نگه دارید و به hreflang داخل head تکیه کنید.
 
 اگر مرورگر یا server محلی sitemap را با `application/xml` مثل متن ساده نشان داد، می‌توانید فقط برای routeهای HTTP مقدار content type را تغییر دهید:
 

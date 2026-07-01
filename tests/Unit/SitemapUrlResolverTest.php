@@ -94,6 +94,7 @@ final class SitemapUrlResolverTest extends TestCase
     public function test_includes_alternates_when_enabled(): void
     {
         $this->enableLocalization();
+        config()->set('zarbin-seo.sitemap.include_alternates', true);
 
         $url = $this->resolver()->fromSource(new ResolverLocalizedSitemapModel, 'fa');
 
@@ -102,6 +103,16 @@ final class SitemapUrlResolverTest extends TestCase
             'fa' => 'https://example.com/fa/localized',
             'en' => 'https://example.com/en/localized',
         ], $url->alternates);
+    }
+
+    public function test_does_not_include_alternates_by_default(): void
+    {
+        $this->enableLocalization();
+
+        $url = $this->resolver()->fromSource(new ResolverLocalizedSitemapModel, 'fa');
+
+        $this->assertNotNull($url);
+        $this->assertSame([], $url->alternates);
     }
 
     public function test_does_not_throw_on_missing_routes(): void

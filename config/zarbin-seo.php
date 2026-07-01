@@ -110,7 +110,23 @@ return [
         'localized_route_enabled' => true,
         'include_localized_in_index' => true,
 
-        'include_alternates' => true,
+        /*
+         |--------------------------------------------------------------------------
+         | Sitemap Hreflang Alternates
+         |--------------------------------------------------------------------------
+         |
+         | false is the safest default because it produces clean sitemap XML.
+         | Hreflang alternates are still rendered in HTML <head> output through
+         | seo()->alternates() and seo()->render().
+         |
+         | Set true only when you specifically want xhtml:link hreflang
+         | alternates inside sitemap files. Some local browser/server
+         | combinations may display sitemap XML as plain text when xhtml
+         | alternates are included, even when the XML is valid.
+         |
+         */
+        'include_alternates' => false,
+
         'defaults' => [
             'priority' => 0.5,
             'change_frequency' => 'weekly',

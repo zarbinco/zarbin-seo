@@ -195,7 +195,7 @@ final class SitemapUrlResolver
 
     private function includeAlternates(): bool
     {
-        return (bool) $this->config('zarbin-seo.sitemap.include_alternates', true);
+        return (bool) $this->config('zarbin-seo.sitemap.include_alternates', false);
     }
 
     private function filled(mixed $value): bool

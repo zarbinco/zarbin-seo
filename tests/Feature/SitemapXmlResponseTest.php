@@ -47,6 +47,8 @@ final class SitemapXmlResponseTest extends TestCase
         $response->assertSee('<urlset', false);
         $response->assertSee('</urlset>', false);
         $response->assertSee('<loc>https://example.test/products</loc>', false);
+        $response->assertDontSee('xmlns:xhtml', false);
+        $response->assertDontSee('xhtml:link', false);
     }
 
     public function test_sitemap_index_http_response_is_xml(): void
@@ -68,11 +70,14 @@ final class SitemapXmlResponseTest extends TestCase
         $response->assertSee('<urlset', false);
         $response->assertSee('<loc>https://example.test/fa/products</loc>', false);
         $response->assertDontSee('<loc>https://example.test/en/products</loc>', false);
+        $response->assertDontSee('xmlns:xhtml', false);
+        $response->assertDontSee('xhtml:link', false);
     }
 
     public function test_fa_localized_sitemap_with_alternates_is_parseable_xml(): void
     {
         $this->configureLocalizedRoutes();
+        config()->set('zarbin-seo.sitemap.include_alternates', true);
 
         $response = $this->get('/sitemap-fa.xml');
         $xml = $this->parseXml($response->getContent());
@@ -115,6 +120,8 @@ final class SitemapXmlResponseTest extends TestCase
         $response->assertSee('<urlset', false);
         $response->assertSee('<loc>https://example.test/en/products</loc>', false);
         $response->assertDontSee('<loc>https://example.test/fa/products</loc>', false);
+        $response->assertDontSee('xmlns:xhtml', false);
+        $response->assertDontSee('xhtml:link', false);
     }
 
     public function test_all_sitemap_endpoints_use_configured_text_xml_content_type(): void

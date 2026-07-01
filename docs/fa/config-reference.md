@@ -48,12 +48,15 @@ feature flagها برای Open Graph، Twitter، schema، sitemap، robots.txt،
     ],
     'localized_route_enabled' => true,
     'include_localized_in_index' => true,
+    'include_alternates' => false,
 ],
 ```
 
 اگر `localized_paths` خالی باشد، رفتار قبلی `/sitemap.xml` باقی می‌ماند. اگر host تولید sitemap با host واقعی سایت فرق دارد، `base_url` را تنظیم کنید تا مثلا خروجی بین `localhost:3000` و `sunich.test` قاطی نشود.
 
 اگر browser خروجی sitemap را به جای XML tree مثل متن ساده نشان می‌دهد، می‌توانید `content_type` را برای routeهای HTTP به `text/xml; charset=UTF-8` تغییر دهید. این تنظیم روی خروجی commandها اثر ندارد.
+
+`include_alternates` به صورت پیش‌فرض `false` است. فقط وقتی آن را `true` کنید که پروژه بخواهد hreflang با `xhtml:link` داخل sitemap هم داشته باشد؛ hreflang داخل head صفحه‌ها مستقل از این تنظیم کار می‌کند.
 
 ## robots_txt
 

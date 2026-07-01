@@ -90,6 +90,7 @@ final class SeoDoctor
             $this->featureResult('Twitter cards', 'twitter'),
             $this->featureResult('Schema', 'schema'),
             $this->sitemapFeatureResult(),
+            $this->sitemapAlternatesResult(),
             $this->robotsFeatureResult(),
         ];
     }
@@ -258,6 +259,24 @@ final class SeoDoctor
         return $enabled
             ? CommandResult::ok('Sitemap', $routeEnabled ? 'Enabled with public route enabled.' : 'Enabled with public route disabled.')
             : CommandResult::info('Sitemap', 'Disabled.');
+    }
+
+    private function sitemapAlternatesResult(): CommandResult
+    {
+        $enabled = (bool) $this->config('zarbin-seo.features.sitemap', true)
+            && (bool) $this->config('zarbin-seo.sitemap.enabled', true);
+        $routeEnabled = (bool) $this->config('zarbin-seo.sitemap.route_enabled', true);
+        $includeAlternates = (bool) $this->config('zarbin-seo.sitemap.include_alternates', false);
+
+        if (! $enabled || ! $includeAlternates) {
+            return CommandResult::info('Sitemap alternates', 'Sitemap xhtml alternates are disabled.');
+        }
+
+        $message = 'Sitemap xhtml alternates are enabled. They are optional when hreflang is rendered in HTML head; some browser/local server combinations may display sitemap XML as plain text with xhtml alternates. Disable sitemap.include_alternates for cleaner sitemap XML if needed.';
+
+        return $routeEnabled
+            ? CommandResult::warning('Sitemap alternates', $message)
+            : CommandResult::info('Sitemap alternates', $message);
     }
 
     private function robotsFeatureResult(): CommandResult
