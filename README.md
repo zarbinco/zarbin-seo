@@ -496,6 +496,10 @@ The UI is disabled by default. It edits database override records and has no Liv
         'rtl_locales' => ['fa', 'ar', 'he', 'ur', 'ku', 'ckb', 'ps', 'sd', 'yi'],
         'fallback' => 'ltr',
     ],
+    'components' => [
+        'global_aliases' => false,
+        'alias_prefix' => 'zarbin-seo',
+    ],
     'completion' => [
         'required' => ['title', 'description', 'canonical', 'robots'],
         'recommended' => ['image'],
@@ -545,6 +549,69 @@ By default, the UI uses the package's standalone layout. To render it inside you
 
 Direction is locale-aware by default. `direction.mode` accepts `auto`, `rtl`, or `ltr`; in auto mode Persian, Arabic, Hebrew, Urdu, Kurdish, Central Kurdish, Pashto, Sindhi, and Yiddish render RTL by default, while English and normal LTR locales render LTR. URLs, canonical inputs, and raw HTML/code previews remain LTR for readability.
 
+### Embeddable Blade Components
+
+The preferred integration path for existing admin panels is to build your own admin page and render Zarbin SEO components inside your layout. Hosted UI routes remain available, but you do not have to adapt your admin layout to the package layout.
+
+Full panel inside a custom admin layout:
+
+```blade
+<x-admin-layout>
+    <x-zarbin-seo::panel locale="fa" />
+</x-admin-layout>
+```
+
+Route inventory only:
+
+```blade
+<x-zarbin-seo::routes locale="fa" />
+```
+
+Model inventory only:
+
+```blade
+<x-zarbin-seo::models locale="fa" />
+```
+
+Route edit form:
+
+```blade
+<x-zarbin-seo::route-form route="sunich.products.fa" locale="fa" />
+```
+
+Model edit form:
+
+```blade
+<x-zarbin-seo::model-form :source="$product" locale="fa" />
+```
+
+Search preview, raw HTML preview, and alerts are also available:
+
+```blade
+<x-zarbin-seo::preview :data="$seoData" />
+<x-zarbin-seo::alert type="warning">Check this SEO source before saving.</x-zarbin-seo::alert>
+```
+
+Publish package views to customize component markup:
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-views
+```
+
+Namespaced components are recommended because they avoid collisions. Optional global aliases can be enabled when you want shorter component names:
+
+```php
+'ui' => [
+    'components' => [
+        'global_aliases' => true,
+    ],
+],
+```
+
+```blade
+<x-zarbin-seo-panel />
+```
+
 Model and holder inventory is opt-in. The package does not crawl every model class and does not run `Model::query()->get()` automatically. To list products, posts, pages, or holder-like models in the dedicated UI, enable model inventory globally and provide an explicit source for each configured model:
 
 ```php
@@ -577,7 +644,7 @@ Model and holder inventory is opt-in. The package does not crawl every model cla
 
 Model edit screens use the same database override system as route edit screens, so saving a model item stores an override for that specific model instance and optional locale.
 
-Embeddable form for your own admin panel:
+The original embeddable form component remains available for custom save flows:
 
 ```blade
 <x-zarbin-seo::form :source="$post" locale="fa" />

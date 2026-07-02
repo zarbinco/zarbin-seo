@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zarbin\Seo\Tests\Feature;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Zarbin\Seo\Data\SeoData;
 use Zarbin\Seo\Support\SeoFormFields;
@@ -93,6 +94,12 @@ final class PublishedViewsSmokeTest extends TestCase
         $this->assertTrue(view()->exists('zarbin-seo::components.fields'));
         $this->assertTrue(view()->exists('zarbin-seo::components.preview'));
         $this->assertTrue(view()->exists('zarbin-seo::components.alert'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.panel'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.dashboard'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.routes'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.models'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.route-form'));
+        $this->assertTrue(view()->exists('zarbin-seo::components.ui.model-form'));
 
         $this->assertIsString(view('zarbin-seo::components.fields', compact('fields', 'values'))->render());
         $this->assertIsString(view('zarbin-seo::components.preview', ['previewHtml' => '<title>Resolved</title>'])->render());
@@ -110,6 +117,16 @@ final class PublishedViewsSmokeTest extends TestCase
             'databaseReady' => true,
             'warning' => null,
         ])->render());
+        $this->assertIsString(Blade::render('<x-zarbin-seo::panel />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::dashboard />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::routes />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::models />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::route-form route="home" />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::model-form model="Missing\Model" id="1" />'));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::preview :data="$seoData" />', [
+            'seoData' => SeoData::make(['title' => 'Resolved']),
+        ]));
+        $this->assertIsString(Blade::render('<x-zarbin-seo::alert type="warning">Warning</x-zarbin-seo::alert>'));
     }
 
     private function registerUiRouteNames(): void

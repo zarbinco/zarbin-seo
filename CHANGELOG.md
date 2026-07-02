@@ -8,6 +8,9 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 - Added host admin layout integration for the optional Blade UI.
 - Added locale-aware RTL/LTR direction support for the optional Blade UI.
+- Added embeddable Blade UI components for dashboard, route inventory, model inventory, route editing, and model editing.
+- Added component-first integration path for custom admin panels.
+- Added publishable component views for customizing the SEO UI.
 - Added opt-in model and holder inventory for the optional Blade UI.
 - Added model SEO edit screens backed by database overrides.
 - Added safe model inventory source handling.
@@ -26,6 +29,7 @@ All notable changes to `zarbinco/zarbin-seo` will be documented in this file.
 
 ### Changed
 
+- Hosted UI pages now reuse embeddable components internally.
 - UI views now expose direction-aware layout variables for easier host integration.
 - UI inventory can now combine route-only and configured model SEO items.
 - Replaced hard-coded UI labels, hints, buttons, warnings, and messages with translation keys.

@@ -72,6 +72,59 @@ UI به‌صورت پیش‌فرض با layout داخلی پکیج نمایش د
 
 آدرس‌ها، canonical و raw HTML/code preview عمدا LTR می‌مانند تا خواندن URL و کد راحت‌تر باشد.
 
+## کامپوننت‌های Blade قابل embed
+
+مسیر پیشنهادی برای اتصال به پنل ادمین پروژه این است که صفحه ادمین خودتان را بسازید و کامپوننت‌های Blade پکیج را داخل همان layout رندر کنید. با این روش لازم نیست layout ادمین پروژه را با layout پکیج هماهنگ کنید.
+
+```blade
+<x-admin-layout>
+    <x-zarbin-seo::panel locale="fa" />
+</x-admin-layout>
+```
+
+برای نمایش فقط inventory مسیرها یا مدل‌ها:
+
+```blade
+<x-zarbin-seo::routes locale="fa" />
+<x-zarbin-seo::models locale="fa" />
+```
+
+برای فرم ویرایش مسیر یا مدل:
+
+```blade
+<x-zarbin-seo::route-form route="sunich.products.fa" locale="fa" />
+<x-zarbin-seo::model-form :source="$product" locale="fa" />
+```
+
+کامپوننت‌های preview و alert هم برای استفاده داخل پنل خود پروژه در دسترس هستند:
+
+```blade
+<x-zarbin-seo::preview :data="$seoData" />
+<x-zarbin-seo::alert type="warning">این منبع SEO را بررسی کنید.</x-zarbin-seo::alert>
+```
+
+viewهای پکیج قابل publish هستند و بعد از publish می‌توانید ظاهر کامپوننت‌ها را مطابق پنل خودتان تغییر دهید:
+
+```bash
+php artisan vendor:publish --tag=zarbin-seo-views
+```
+
+کامپوننت‌های namespaced مثل `<x-zarbin-seo::panel />` پیشنهاد می‌شوند چون احتمال تداخل نام ندارند. اگر خواستید aliasهای سراسری داشته باشید، می‌توانید آن‌ها را opt-in فعال کنید:
+
+```php
+'ui' => [
+    'components' => [
+        'global_aliases' => true,
+    ],
+],
+```
+
+```blade
+<x-zarbin-seo-panel />
+```
+
+این کامپوننت‌ها جهت RTL/LTR را بر اساس locale حفظ می‌کنند؛ متن فارسی RTL می‌ماند و URL، canonical و preview کد همچنان LTR نمایش داده می‌شود. مسیرهای hosted UI هم همچنان وجود دارند و برای پروژه‌هایی که یک صفحه آماده می‌خواهند قابل استفاده‌اند.
+
 ## inventory مدل‌ها
 
 Inventory مدل‌ها به‌صورت پیش‌فرض غیرفعال است و فقط وقتی کار می‌کند که هم `ui.inventory.models.enabled` فعال باشد و هم برای هر مدل، `ui.enabled` و یک `source` صریح تعریف شده باشد.

@@ -22,6 +22,15 @@ return [
         'ltr' => 'چپ به راست',
     ],
 
+    'components' => [
+        'panel_title' => 'پنل SEO',
+        'routes_title' => 'مسیرهای SEO',
+        'models_title' => 'مدل‌های SEO',
+        'custom_action_missing' => 'برای ذخیره از مسیر ادمین خودتان، action سفارشی را ارسال کنید.',
+        'source_not_found' => 'منبع SEO درخواستی پیدا نشد.',
+        'hosted_routes_disabled' => 'مسیرهای hosted UI سئو غیرفعال هستند یا در دسترس نیستند.',
+    ],
+
     'dashboard' => [
         'title' => 'Zarbin SEO',
         'description' => 'مدیریت وضعیت SEO و overrideهای مسیرها.',

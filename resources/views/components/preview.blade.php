@@ -1,11 +1,21 @@
 @php
+    $seoPreviewData = $seoData ?? null;
+
+    if (! $seoPreviewData instanceof \Zarbin\Seo\Data\SeoData && isset($data) && $data instanceof \Zarbin\Seo\Data\SeoData) {
+        $seoPreviewData = $data;
+    }
+
+    $searchPreview = $searchPreview ?? ($seoPreviewData === null ? null : (new \Zarbin\Seo\Support\SearchPreviewBuilder())->build($seoPreviewData));
+    $previewHtml = $previewHtml ?? ($seoPreviewData === null ? '' : seo()->renderer()->render($seoPreviewData));
     $searchPreview = $searchPreview ?? null;
     $rawHtmlPreview = $rawHtmlPreview ?? ($previewHtml ?? '');
     $previewLocale = $searchPreview?->locale ?? ($uiLocale ?? null);
     $previewDir = $uiDir ?? \Zarbin\Seo\Support\UiDirection::current($previewLocale);
+    $previewLang = $uiLang ?? \Zarbin\Seo\Support\UiDirection::htmlAttributes($previewLocale)['lang'];
+    $showRawHtml = $showRawHtml ?? true;
 @endphp
 
-<section class="zarbin-seo-panel" dir="{{ $previewDir }}">
+<section class="zarbin-seo-panel" dir="{{ $previewDir }}" lang="{{ $previewLang }}" data-zarbin-seo-component="preview">
     <h2>{{ \Zarbin\Seo\Support\UiTranslator::get('preview.title') }}</h2>
 
     @if($searchPreview)
@@ -35,8 +45,10 @@
         </div>
     @endif
 
-    <div class="zarbin-seo-raw-preview">
-        <h3>{{ \Zarbin\Seo\Support\UiTranslator::get('preview.raw_html') }}</h3>
-        <textarea class="zarbin-seo-preview" readonly dir="ltr">{{ $rawHtmlPreview }}</textarea>
-    </div>
+    @if($showRawHtml)
+        <div class="zarbin-seo-raw-preview">
+            <h3>{{ \Zarbin\Seo\Support\UiTranslator::get('preview.raw_html') }}</h3>
+            <textarea class="zarbin-seo-preview" readonly dir="ltr">{{ $rawHtmlPreview }}</textarea>
+        </div>
+    @endif
 </section>

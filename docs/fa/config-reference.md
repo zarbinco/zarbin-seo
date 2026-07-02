@@ -83,6 +83,10 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
         'rtl_locales' => ['fa', 'ar', 'he', 'ur', 'ku', 'ckb', 'ps', 'sd', 'yi'],
         'fallback' => 'ltr',
     ],
+    'components' => [
+        'global_aliases' => false,
+        'alias_prefix' => 'zarbin-seo',
+    ],
     'completion' => [
         'required' => ['title', 'description', 'canonical', 'robots'],
         'recommended' => ['image'],
@@ -113,6 +117,8 @@ UI اختیاری Blade: path، middleware، gate، route enablement و preview.
 `inventory.routes.enabled` به صورت پیش‌فرض فعال است. `inventory.models.enabled` به صورت پیش‌فرض غیرفعال است و فقط مدل‌هایی را نشان می‌دهد که در config خودشان `ui.enabled` و `ui.source` صریح داشته باشند؛ پکیج مدل‌ها را خودکار crawl نمی‌کند.
 
 `layout.mode` در حالت پیش‌فرض `standalone` است. برای استفاده از layout ادمین پروژه، مقدار را `host` کنید و `layout.view` و `layout.section` را مشخص کنید. `direction.mode` هم می‌تواند `auto`، `rtl` یا `ltr` باشد؛ در حالت `auto` localeهایی مثل `fa` و `ar` به صورت RTL و `en` به صورت LTR نمایش داده می‌شوند.
+
+`components.global_aliases` به صورت پیش‌فرض `false` است تا نام کامپوننت‌ها با پروژه تداخل نکند. کامپوننت‌های namespaced همیشه در دسترس هستند؛ مثلا `<x-zarbin-seo::panel />`. اگر aliasهای سراسری را فعال کنید، prefix از `components.alias_prefix` خوانده می‌شود و مثلا `<x-zarbin-seo-panel />` قابل استفاده است.
 
 متن‌های UI از فایل‌های translation پکیج می‌آیند و با این دستور قابل publish هستند:
 

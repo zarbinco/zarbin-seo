@@ -288,6 +288,31 @@ return [
             'title_limit' => 60,
             'description_limit' => 160,
         ],
+        'components' => [
+            /*
+             * Register optional global aliases in addition to namespaced package components.
+             *
+             * Namespaced components are always available:
+             * <x-zarbin-seo::panel />
+             * <x-zarbin-seo::routes />
+             * <x-zarbin-seo::models />
+             * <x-zarbin-seo::route-form />
+             * <x-zarbin-seo::model-form />
+             *
+             * Global aliases are optional to reduce collision risk.
+             */
+            'global_aliases' => false,
+
+            /*
+             * Prefix used if global aliases are enabled.
+             *
+             * Example aliases:
+             * <x-zarbin-seo-panel />
+             * <x-zarbin-seo-routes />
+             * <x-zarbin-seo-models />
+             */
+            'alias_prefix' => 'zarbin-seo',
+        ],
         'inventory' => [
             'routes' => [
                 'enabled' => true,

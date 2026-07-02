@@ -22,6 +22,15 @@ return [
         'ltr' => 'Left to right',
     ],
 
+    'components' => [
+        'panel_title' => 'SEO Panel',
+        'routes_title' => 'SEO Routes',
+        'models_title' => 'SEO Models',
+        'custom_action_missing' => 'Pass a custom action URL to save from your own admin route.',
+        'source_not_found' => 'The requested SEO source was not found.',
+        'hosted_routes_disabled' => 'Hosted SEO UI routes are disabled or unavailable.',
+    ],
+
     'dashboard' => [
         'title' => 'Zarbin SEO',
         'description' => 'Manage SEO readiness and route overrides.',

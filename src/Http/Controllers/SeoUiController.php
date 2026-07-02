@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace Zarbin\Seo\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use JsonException;
-use Throwable;
 use Zarbin\Seo\Repositories\SeoMetaRepository;
-use Zarbin\Seo\Support\ModelInventoryItemFactory;
-use Zarbin\Seo\Support\ModelInventorySourceResolver;
-use Zarbin\Seo\Support\SearchPreviewBuilder;
 use Zarbin\Seo\Support\SeoFormFields;
-use Zarbin\Seo\Support\SeoInventory;
 use Zarbin\Seo\Support\SeoUiAuthorization;
+use Zarbin\Seo\Support\UiComponentDataFactory;
 use Zarbin\Seo\Support\UiConfig;
 use Zarbin\Seo\Support\UiDirection;
 use Zarbin\Seo\Support\UiTranslator;
@@ -27,10 +22,7 @@ final class SeoUiController
 {
     public function __construct(
         private readonly SeoMetaRepository $repository = new SeoMetaRepository,
-        private readonly SeoInventory $inventory = new SeoInventory,
-        private readonly SearchPreviewBuilder $preview = new SearchPreviewBuilder,
-        private readonly ModelInventorySourceResolver $modelSources = new ModelInventorySourceResolver,
-        private readonly ModelInventoryItemFactory $modelItems = new ModelInventoryItemFactory,
+        private readonly UiComponentDataFactory $components = new UiComponentDataFactory,
     ) {}
 
     public function dashboard(): View
@@ -38,17 +30,6 @@ final class SeoUiController
         SeoUiAuthorization::authorize();
 
         return view('zarbin-seo::ui.dashboard', array_replace([
-            'status' => [
-                'ui_enabled' => UiConfig::enabled(),
-                'database_overrides_enabled' => $this->repository->enabled(),
-                'table_exists' => $this->repository->tableExists(),
-                'sitemap_enabled' => (bool) config('zarbin-seo.features.sitemap', true),
-                'robots_enabled' => (bool) config('zarbin-seo.features.robots_txt', true),
-                'localization_enabled' => (bool) config('zarbin-seo.localization.enabled', false),
-            ],
-            'inventoryStats' => $this->inventoryStats(),
-            'databaseReady' => $this->databaseReady(),
-            'modelsEnabled' => UiConfig::modelInventoryEnabled(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ], $this->uiViewData(null, UiTranslator::get('dashboard.title'))));
     }
@@ -58,8 +39,6 @@ final class SeoUiController
         SeoUiAuthorization::authorize();
 
         return view('zarbin-seo::ui.routes.index', array_replace([
-            'routes' => $this->inventory->routes(),
-            'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ], $this->uiViewData(null, UiTranslator::get('routes.title'))));
     }
@@ -69,9 +48,6 @@ final class SeoUiController
         SeoUiAuthorization::authorize();
 
         return view('zarbin-seo::ui.models.index', array_replace([
-            'models' => $this->inventory->models(),
-            'modelsEnabled' => UiConfig::modelInventoryEnabled(),
-            'databaseReady' => $this->databaseReady(),
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ], $this->uiViewData(null, UiTranslator::get('models.title'))));
     }
@@ -83,24 +59,11 @@ final class SeoUiController
         $routeName = (string) $request->query('route', '');
         $locale = $this->locale($request);
 
-        abort_unless($this->routeIsConfigured($routeName), 404);
-
-        $resolved = seo()->resolve($routeName, $locale);
-        $override = $this->repository->findForRoute($routeName, $locale);
-        $previewHtml = seo()->renderer()->render($resolved);
+        abort_unless($this->components->routeIsConfigured($routeName), 404);
 
         return view('zarbin-seo::ui.routes.edit', array_replace([
             'routeName' => $routeName,
             'locale' => $locale,
-            'resolved' => $resolved,
-            'override' => $override,
-            'fields' => SeoFormFields::fields(),
-            'values' => SeoFormFields::values($override?->toArray() ?? [], $resolved->toArray()),
-            'databaseReady' => $this->databaseReady(),
-            'showPreview' => UiConfig::showPreview(),
-            'searchPreview' => $this->preview->build($resolved),
-            'previewHtml' => $previewHtml,
-            'rawHtmlPreview' => $previewHtml,
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ], $this->uiViewData($locale, UiTranslator::get('routes.edit_title'))));
     }
@@ -114,7 +77,7 @@ final class SeoUiController
         $routeName = (string) $request->input('route');
         $locale = $this->locale($request);
 
-        abort_unless($this->routeIsConfigured($routeName), 404);
+        abort_unless($this->components->routeIsConfigured($routeName), 404);
 
         $attributes = SeoFormFields::flattenOverrideData((array) $request->input());
         $meta = $this->repository->saveForRoute($routeName, $attributes, $locale);
@@ -133,7 +96,7 @@ final class SeoUiController
         $routeName = (string) $request->input('route', '');
         $locale = $this->locale($request);
 
-        abort_unless($this->routeIsConfigured($routeName), 404);
+        abort_unless($this->components->routeIsConfigured($routeName), 404);
 
         $deleted = $this->repository->deleteForRoute($routeName, $locale);
 
@@ -150,9 +113,6 @@ final class SeoUiController
         abort_unless(UiConfig::modelInventoryEnabled(), 404);
 
         $context = $this->modelContext($request);
-        $resolved = seo()->resolve($context['model'], $context['locale']);
-        $override = $this->repository->findForSource($context['model'], $context['locale']);
-        $previewHtml = seo()->renderer()->render($resolved);
 
         return view('zarbin-seo::ui.models.edit', array_replace([
             'model' => $context['model'],
@@ -162,15 +122,6 @@ final class SeoUiController
             'sourceLabel' => $context['sourceLabel'],
             'modelToken' => $context['modelToken'],
             'locale' => $context['locale'],
-            'resolved' => $resolved,
-            'override' => $override,
-            'fields' => SeoFormFields::fields(),
-            'values' => SeoFormFields::values($override?->toArray() ?? [], $resolved->toArray()),
-            'databaseReady' => $this->databaseReady(),
-            'showPreview' => UiConfig::showPreview(),
-            'searchPreview' => $this->preview->build($resolved),
-            'previewHtml' => $previewHtml,
-            'rawHtmlPreview' => $previewHtml,
             'routeNamePrefix' => UiConfig::routeNamePrefix(),
         ], $this->uiViewData($context['locale'], UiTranslator::get('models.edit_title'))));
     }
@@ -210,48 +161,6 @@ final class SeoUiController
     }
 
     /**
-     * @return array<string, array<string, mixed>>
-     */
-    private function configuredRoutes(): array
-    {
-        $routes = config('zarbin-seo.routes', []);
-
-        return is_array($routes) ? array_filter($routes, 'is_array') : [];
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private function configuredModels(): array
-    {
-        $models = config('zarbin-seo.models', []);
-
-        if (! is_array($models)) {
-            return [];
-        }
-
-        $configured = [];
-
-        foreach ($models as $modelClass => $config) {
-            if (is_string($modelClass) && $modelClass !== '' && is_array($config)) {
-                $configured[$modelClass] = $config;
-            }
-        }
-
-        return $configured;
-    }
-
-    private function routeIsConfigured(string $routeName): bool
-    {
-        return $routeName !== '' && array_key_exists($routeName, $this->configuredRoutes());
-    }
-
-    private function databaseReady(): bool
-    {
-        return $this->repository->enabled() && $this->repository->tableExists();
-    }
-
-    /**
      * @return array{uiDirection: string, uiDir: string, uiLang: string, uiIsRtl: bool, uiTextStart: string, uiTextEnd: string, uiLocale: ?string, pageTitle: string}
      */
     private function uiViewData(?string $locale, string $pageTitle): array
@@ -267,39 +176,6 @@ final class SeoUiController
             'uiTextEnd' => UiDirection::textAlignEnd($locale),
             'uiLocale' => $locale,
             'pageTitle' => $pageTitle,
-        ];
-    }
-
-    /**
-     * @return array{total: int, complete: int, incomplete: int, routes: array{total: int, complete: int, incomplete: int}, models: array{total: int, complete: int, incomplete: int}}
-     */
-    private function inventoryStats(): array
-    {
-        $routes = $this->stats($this->inventory->routes());
-        $models = $this->stats($this->inventory->models());
-
-        return [
-            'total' => $routes['total'],
-            'complete' => $routes['complete'],
-            'incomplete' => $routes['incomplete'],
-            'routes' => $routes,
-            'models' => $models,
-        ];
-    }
-
-    /**
-     * @param  array<int, mixed>  $items
-     * @return array{total: int, complete: int, incomplete: int}
-     */
-    private function stats(array $items): array
-    {
-        $complete = count(array_filter($items, fn ($item): bool => $item->complete));
-        $total = count($items);
-
-        return [
-            'total' => $total,
-            'complete' => $complete,
-            'incomplete' => $total - $complete,
         ];
     }
 
@@ -324,114 +200,11 @@ final class SeoUiController
         $modelToken = $this->requestString($request, 'model');
         $modelKey = $this->requestString($request, 'id');
         $locale = $this->locale($request);
-        $configured = $this->configuredModelForToken($modelToken);
+        $context = $this->components->modelContext($modelToken, $modelKey, $locale);
 
-        abort_unless($modelToken !== '' && $modelKey !== '' && $configured !== null, 404);
+        abort_unless($context !== null, 404);
 
-        [$modelClass, $modelConfig] = $configured;
-        $model = $this->findModel($modelClass, $modelConfig, $modelKey);
-
-        abort_unless($model !== null, 404);
-
-        $data = seo()->resolve($model, $locale);
-
-        return [
-            'modelClass' => $modelClass,
-            'modelConfig' => $modelConfig,
-            'model' => $model,
-            'modelKey' => $modelKey,
-            'modelLabel' => $this->modelItems->make($model, $modelClass, $modelConfig, $locale)?->label
-                ?? $data->title
-                ?? $modelKey,
-            'sourceLabel' => $this->modelItems->sourceLabel($modelClass, $modelConfig),
-            'modelToken' => $this->modelItems->modelToken($modelClass, $modelConfig),
-            'locale' => $locale,
-        ];
-    }
-
-    /**
-     * @return array{0: string, 1: array<string, mixed>}|null
-     */
-    private function configuredModelForToken(string $token): ?array
-    {
-        if ($token === '') {
-            return null;
-        }
-
-        foreach ($this->configuredModels() as $modelClass => $config) {
-            if ($token === $modelClass || $token === $this->modelItems->modelToken($modelClass, $config)) {
-                return [$modelClass, $config];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  class-string|string  $modelClass
-     * @param  array<string, mixed>  $modelConfig
-     */
-    private function findModel(string $modelClass, array $modelConfig, string $modelKey): ?object
-    {
-        $eloquent = $this->findEloquentModel($modelClass, $modelConfig, $modelKey);
-
-        if ($eloquent !== null) {
-            return $eloquent;
-        }
-
-        foreach ($this->modelSources->resolve($modelClass, $modelConfig) as $model) {
-            if (! is_object($model)) {
-                continue;
-            }
-
-            if ($this->modelItems->keyFor($model, $modelConfig) === $modelKey) {
-                return $model;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  class-string|string  $modelClass
-     * @param  array<string, mixed>  $modelConfig
-     */
-    private function findEloquentModel(string $modelClass, array $modelConfig, string $modelKey): ?object
-    {
-        if (! class_exists($modelClass) || ! is_a($modelClass, EloquentModel::class, true)) {
-            return null;
-        }
-
-        try {
-            /** @var EloquentModel $instance */
-            $instance = new $modelClass;
-            $query = $modelClass::query();
-            $field = $this->modelLookupField($instance, $modelConfig);
-
-            if ($field === null || $field === $instance->getKeyName()) {
-                return $query->whereKey($modelKey)->first();
-            }
-
-            return $query->where($field, $modelKey)->first();
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * @param  array<string, mixed>  $modelConfig
-     */
-    private function modelLookupField(EloquentModel $model, array $modelConfig): ?string
-    {
-        $ui = is_array($modelConfig['ui'] ?? null) ? $modelConfig['ui'] : [];
-
-        foreach ([$ui['key'] ?? null, $modelConfig['route_key'] ?? null] as $field) {
-            if (is_string($field) && trim($field) !== '') {
-                return trim($field);
-            }
-        }
-
-        return $model->getKeyName();
+        return $context;
     }
 
     private function requestString(Request $request, string $key): string
